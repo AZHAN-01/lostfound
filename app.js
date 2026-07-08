@@ -1267,12 +1267,6 @@ function runAutomatedScanAndSave() {
     body: JSON.stringify({ image: scannedDocBase64 })
   })
     .then(async response => {
-      if (response.status === 412) {
-        printConsoleLog("Gemini API key not configured. Falling back to local browser OCR...", "warning");
-        runLocalOcrFallback();
-        return;
-      }
-
       let resData;
       try {
         resData = await response.json();
@@ -1289,8 +1283,8 @@ function runAutomatedScanAndSave() {
     })
     .catch(err => {
       printConsoleLog(`Gemini API Error: ${err.message}`, "error");
-      printConsoleLog("Attempting local browser OCR fallback...", "warning");
-      runLocalOcrFallback();
+      showAlert("AI Scanner failed: " + err.message, "error");
+      resetScannerState();
     });
 }
 
@@ -2253,6 +2247,10 @@ function clearImagePreview() {
   if (reportImageInput) {
     reportImageInput.value = '';
   }
+  const aiAnalysisContainer = document.getElementById('ai-analysis-container');
+  if (aiAnalysisContainer) {
+    aiAnalysisContainer.classList.add('hidden');
+  }
   const matchContainer = document.getElementById('match-result-container');
   if (matchContainer) {
     matchContainer.innerHTML = '';
@@ -2365,11 +2363,6 @@ function runFoundDocumentOcrAndMatch(base64Data) {
     body: JSON.stringify({ image: base64Data })
   })
     .then(async response => {
-      if (response.status === 412) {
-        runFoundDocumentLocalOcrFallback(base64Data);
-        return;
-      }
-
       let resData;
       try {
         resData = await response.json();
@@ -2384,8 +2377,8 @@ function runFoundDocumentOcrAndMatch(base64Data) {
       processAndMatchFoundData(resData);
     })
     .catch(err => {
-      console.warn("Gemini API Error: " + err.message + ". Falling back to local OCR.");
-      runFoundDocumentLocalOcrFallback(base64Data);
+      showAlert("AI Scanning failed: " + err.message, "error");
+      finishFoundScanning(null);
     });
 }
 
@@ -2471,10 +2464,21 @@ function runFoundDocumentLocalOcrFallback(base64Data) {
 function processAndMatchFoundData(data) {
   const reportTitle = document.getElementById('report-title');
   const reportDescription = document.getElementById('report-description');
+  const aiAnalysisContainer = document.getElementById('ai-analysis-container');
 
   if (reportTitle) reportTitle.value = `Found ${data.name || 'Document'}`;
   if (reportDescription) {
     reportDescription.value = `Scanned Credentials:\n- Holder Name: ${data.holderName || 'Unknown'}\n- Document ID Number: ${data.id || 'Unknown'}\n- Expiration Date: ${data.expiryDate || 'N/A'}\n\nFull OCR Transcript:\n${data.rawText || ''}`;
+  }
+
+  // Populate and show the AI analysis review block
+  if (aiAnalysisContainer) {
+    aiAnalysisContainer.classList.remove('hidden');
+    document.getElementById('analysis-type').textContent = (data.type || 'Other').toUpperCase();
+    document.getElementById('analysis-id').textContent = data.id || 'Unknown';
+    document.getElementById('analysis-holder').textContent = data.holderName || 'Unknown';
+    document.getElementById('analysis-expiry').textContent = data.expiryDate || 'N/A';
+    safeCreateIcons();
   }
 
   // Call matching backend

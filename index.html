@@ -656,6 +656,20 @@
           </div>
         </div>
 
+        <!-- AI Analysis Results Container -->
+        <div id="ai-analysis-container" class="analysis-result-container hidden" style="background: rgba(59, 130, 246, 0.08); border: 1px solid var(--brand-primary); border-radius: var(--radius-md); padding: 15px; margin-bottom: 20px;">
+          <h4 style="color: var(--brand-primary); display: flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; margin-top: 0;">
+            <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+            AI Scanner Analysis Details
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+            <div><strong>Type:</strong> <span id="analysis-type">-</span></div>
+            <div><strong>Document ID:</strong> <span id="analysis-id">-</span></div>
+            <div style="grid-column: span 2;"><strong>Holder Name:</strong> <span id="analysis-holder">-</span></div>
+            <div style="grid-column: span 2;"><strong>Expiration Date:</strong> <span id="analysis-expiry">-</span></div>
+          </div>
+        </div>
+
         <!-- Match Result Container -->
         <div id="match-result-container" class="match-result-container hidden"></div>
 
