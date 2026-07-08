@@ -4502,22 +4502,24 @@ body.dark-mode .brand-logo span {
     display: none !important;
   }
   .certificate-card {
-    max-width: 95% !important;
-    margin: 10px auto !important;
+    max-width: 100% !important;
+    margin: 10px !important;
+    width: auto !important;
   }
   .certificate-card .modal-body {
     overflow: hidden !important;
-    padding: 15px 10px !important;
+    padding: 15px !important;
     display: block !important;
   }
   .premium-certificate {
     min-width: 800px !important;
+    width: 800px !important;
     margin: 0 !important;
-    /* Standard zoom for Chrome/Safari/Edge (Perfect scaling) */
-    zoom: 0.42;
-    /* Fallback for Firefox */
-    -moz-transform: scale(0.42);
-    -moz-transform-origin: top left;
+    /* Dynamically scale to fit exact screen width minus 50px for paddings */
+    transform: scale(calc((100vw - 50px) / 800));
+    transform-origin: top left;
+    /* Mathematically collapse the empty vertical space left by the scale */
+    margin-bottom: calc(((100vw - 50px) / 800) * 550px - 550px) !important;
   }
 }
 
