@@ -793,6 +793,8 @@ navItems.forEach(item => {
     } else if (targetView === 'upload') {
       renderLockerGallery();
       startQuoteRotation();
+    } else if (targetView === 'certificates') {
+      renderCertificates();
     }
 
     safeCreateIcons();
@@ -1027,13 +1029,14 @@ function createListItemCard(item, index) {
 function renderItems() {
   renderLostItems();
   renderFoundItems();
+  renderCertificates();
 }
 
 // Safe statistics rendering
 function renderStats() {
   const lostCount = dbItems.filter(item => item.status === 'lost').length;
   const foundCount = dbItems.filter(item => item.status === 'found').length;
-  const resolvedCount = dbItems.filter(item => item.status === 'resolved').length;
+  const resolvedCount = dbItems.filter(item => item.status === 'resolved' || item.status === 'resolved_lost' || item.status === 'resolved_found').length;
 
   const elLost = document.getElementById('stat-lost-count');
   const elFound = document.getElementById('stat-found-count');
@@ -1861,6 +1864,8 @@ if (gotBackBtn) {
     if (!activeViewingItem) return;
     
     let returnerName = '';
+    const nextStatus = activeViewingItem.status === 'found' ? 'resolved_found' : 'resolved_lost';
+    
     if (activeViewingItem.status === 'found') {
       returnerName = activeViewingItem.reporterName;
     } else {
@@ -1874,7 +1879,7 @@ if (gotBackBtn) {
       const response = await fetch('api/items.php', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: activeViewingItem.id, status: 'resolved' })
+        body: JSON.stringify({ id: activeViewingItem.id, status: nextStatus })
       });
       
       if (!response.ok) {
@@ -1884,7 +1889,7 @@ if (gotBackBtn) {
       
       // Update local dbItems state
       const dbItem = dbItems.find(item => item.id === activeViewingItem.id);
-      if (dbItem) dbItem.status = 'resolved';
+      if (dbItem) dbItem.status = nextStatus;
       
       // Close the detail modal
       detailModal.classList.remove('active');
@@ -3167,4 +3172,60 @@ function enhanceImage(canvas, brightness, contrast, sharpen) {
     }
     ctx.putImageData(dstData, 0, 0);
   }
+}
+
+// 6. Dynamic Certificate of Appreciation Listing
+const certsResultsCountEl = document.getElementById('certs-results-count');
+const certsEmptyState = document.getElementById('certs-empty-state');
+const certsGrid = document.getElementById('certs-grid');
+
+function renderCertificates() {
+  if (!certsGrid) return;
+  certsGrid.innerHTML = '';
+
+  const earnedCerts = dbItems.filter(item => {
+    return item.status === 'resolved_found' && currentUser && item.reporterEmail === currentUser.email;
+  });
+
+  if (certsResultsCountEl) {
+    certsResultsCountEl.textContent = `Showing ${earnedCerts.length} certificate${earnedCerts.length === 1 ? '' : 's'}`;
+  }
+
+  if (earnedCerts.length === 0) {
+    certsGrid.classList.add('hidden');
+    if (certsEmptyState) certsEmptyState.classList.remove('hidden');
+  } else {
+    certsGrid.classList.remove('hidden');
+    if (certsEmptyState) certsEmptyState.classList.add('hidden');
+
+    earnedCerts.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card cert-preview-card';
+      card.style.border = '1px solid #d4af37';
+      card.style.background = 'var(--bg-tertiary)';
+      card.style.cursor = 'pointer';
+      
+      card.innerHTML = `
+        <div class="card-media" style="background: rgba(212, 175, 55, 0.1); height: 140px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <div style="color: #d4af37; font-size: 3rem;">🏆</div>
+          <span class="badge" style="background: #d4af37; color: #fff; position: absolute; top: 10px; left: 10px;">CERTIFICATE</span>
+        </div>
+        <div class="card-body" style="padding: 15px;">
+          <span class="card-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(item.date)}</span>
+          <h3 class="card-title" style="font-size: 1rem; font-weight: 600; margin-top: 5px;">Honesty Award</h3>
+          <p class="card-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">For returning: "${item.title}"</p>
+          <div class="card-footer" style="margin-top: 15px; border-top: 1px solid var(--card-border); padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; font-weight: 500; color: #d4af37;">View Certificate</span>
+            <i data-lucide="arrow-right" style="width: 14px; height: 14px; color: #d4af37;"></i>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        showCertificate(item.reporterName, item.title);
+      });
+      certsGrid.appendChild(card);
+    });
+  }
+  safeCreateIcons();
 }

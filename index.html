@@ -314,6 +314,10 @@
             <i data-lucide="check-circle2"></i>
             <span>Found Items</span>
           </li>
+          <li class="nav-item" data-view="certificates">
+            <i data-lucide="award"></i>
+            <span>My Certificates</span>
+          </li>
         </ul>
       </nav>
 
@@ -537,6 +541,28 @@
 
           <!-- Items Grid -->
           <div class="items-grid" id="found-items-grid"></div>
+        </div>
+
+        <!-- View: My Certificates -->
+        <div id="view-certificates" class="dashboard-view hidden">
+          <div class="view-header-row">
+            <h2>My Appreciation Certificates</h2>
+            <span class="results-count" id="certs-results-count">Showing 0 certificates</span>
+          </div>
+
+          <!-- Empty Certificates State -->
+          <div class="empty-state" id="certs-empty-state">
+            <div class="empty-illustration">
+              <i data-lucide="award" style="width: 48px; height: 48px;"></i>
+            </div>
+            <h3>No certificates earned yet</h3>
+            <p>Report found items and help return them to their owners to earn Certificates of Appreciation!</p>
+          </div>
+
+          <!-- Certificates Grid -->
+          <div class="certs-grid hidden" id="certs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+            <!-- Dynamically populated certificate cards -->
+          </div>
         </div>
 
       </div>
