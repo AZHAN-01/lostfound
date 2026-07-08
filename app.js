@@ -1858,18 +1858,29 @@ if (btnPrintCert) {
     window.lucide.createIcons();
   }
 
-  btnPrintCert.addEventListener('click', () => {
+  btnPrintCert.addEventListener('click', async () => {
     btnPrintCert.style.display = 'none'; // hide the button itself
+
+    // Wait until fonts and images (like QR code) are fully loaded
+    await document.fonts.ready;
+    const qrImage = document.getElementById('cert-qr-code');
+    if (qrImage && !qrImage.complete) {
+      await new Promise(resolve => {
+        qrImage.onload = resolve;
+        qrImage.onerror = resolve;
+      });
+    }
 
     const originalCert = document.querySelector('.premium-certificate');
     
     // Create an invisible wrapper so HTML2CANVAS can render it within viewport bounds
+    // Set explicit large bounds to prevent CSS clipping of overflows
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
     wrapper.style.top = '0';
     wrapper.style.left = '0';
-    wrapper.style.width = '1200px';
-    wrapper.style.height = '1000px';
+    wrapper.style.width = '1600px';
+    wrapper.style.height = '1200px';
     wrapper.style.zIndex = '-9999';
     wrapper.style.opacity = '0';
     wrapper.style.pointerEvents = 'none';
@@ -1882,15 +1893,39 @@ if (btnPrintCert) {
     wrapper.appendChild(printClone);
     document.body.appendChild(wrapper);
 
+    // Dynamic margin calculation to center perfectly on A4 Landscape
     const certWidth = printClone.offsetWidth || 906;
     const certHeight = printClone.offsetHeight || 650;
+    
+    const certRatio = certWidth / certHeight;
+    const a4Width = 297;
+    const a4Height = 210;
+    const baseMargin = 15; // 15mm margins on all sides
+    
+    const printableWidth = a4Width - (baseMargin * 2);
+    const printableHeight = a4Height - (baseMargin * 2);
+    const printableRatio = printableWidth / printableHeight;
+    
+    let marginTop, marginLeft;
+    
+    if (certRatio > printableRatio) {
+      // Constrained by width
+      const scaledHeight = printableWidth / certRatio;
+      marginTop = (a4Height - scaledHeight) / 2;
+      marginLeft = baseMargin;
+    } else {
+      // Constrained by height
+      const scaledWidth = printableHeight * certRatio;
+      marginLeft = (a4Width - scaledWidth) / 2;
+      marginTop = baseMargin;
+    }
 
     const opt = {
-      margin:       0,
+      margin:       [marginTop, marginLeft, marginTop, marginLeft],
       filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF:        { unit: 'px', format: [certWidth, certHeight], orientation: 'landscape' }
+      html2canvas:  { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
     // Generate PDF from the 100% scale clone
