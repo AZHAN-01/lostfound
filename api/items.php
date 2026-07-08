@@ -13,6 +13,12 @@ require_once 'db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+if ($method === 'GET') {
+    // Cache the response for 10 seconds on the client and 30 seconds on proxies
+    // This dramatically reduces backend load and improves mobile loading speed
+    header("Cache-Control: public, max-age=10, s-maxage=30");
+}
+
 switch ($method) {
     case 'GET':
         try {

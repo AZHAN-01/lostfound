@@ -8,12 +8,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+  <!-- Preconnect to external CDNs for performance -->
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
   <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/lucide@latest"></script>
   <!-- Tesseract.js for client-side OCR fallback -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <!-- html2pdf for Certificate PDF Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- Main JavaScript File (Deferred for performance) -->
+  <script defer src="app.js"></script>
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -32,7 +40,7 @@
       <!-- Brand Sidebar / Banner -->
       <div class="auth-brand-side">
         <div class="brand-logo" style="flex-direction: column; align-items: center; text-align: center; gap: 20px; width: 100%;">
-          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 240px; height: 240px; box-shadow: 0 16px 48px rgba(0,0,0,0.35);">
+          <img src="logo.webp" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 240px; height: 240px; box-shadow: 0 16px 48px rgba(0,0,0,0.35);">
           <span style="font-size: 2.2rem;">lost<span>found</span></span>
         </div>
         <div class="brand-carousel">
@@ -50,7 +58,7 @@
       <div class="auth-form-side">
         <!-- Mobile Logo Header (visible only on mobile) -->
         <div class="mobile-logo-header" style="flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: center; width: 100%;">
-          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 140px; height: 140px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+          <img src="logo.webp" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 140px; height: 140px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
           <span style="font-size: 2rem; font-weight: 800; font-family: var(--font-head);">lost<span>found</span></span>
         </div>
 
@@ -256,7 +264,7 @@
     <header class="main-header">
       <div class="header-container">
         <div class="brand-logo">
-          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 96px; height: 96px; box-shadow: 0 6px 16px rgba(0,0,0,0.15);">
+          <img src="logo.webp" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 96px; height: 96px; box-shadow: 0 6px 16px rgba(0,0,0,0.15);">
           <span>lost<span>found</span></span>
         </div>
 
@@ -363,7 +371,7 @@
                   <p class="secondary-text" style="margin-top: 10px;">Supports PNG, JPG, JPEG (Max 10MB)</p>
                 </div>
                 <div class="drop-zone-active hidden" id="drop-zone-active">
-                  <img id="doc-image-preview" src="" alt="Document Preview">
+                  <img id="doc-image-preview" src="" alt="Document Preview" loading="lazy">
                   <div class="scan-laser hidden" id="scan-laser"></div>
                 </div>
                 <input type="file" id="doc-image-input" accept="image/*" class="hidden-file-input">
@@ -649,7 +657,7 @@
             <input type="file" id="report-camera-input" accept="image/*" capture="environment" class="hidden-file-input" disabled>
             <!-- Image Preview Element -->
             <div class="image-preview-container hidden" id="image-preview-container">
-              <img id="image-preview" src="" alt="Item upload preview">
+              <img id="image-preview" src="" alt="Item upload preview" loading="lazy">
               <div class="scan-laser hidden" id="report-scan-laser"></div>
               <button type="button" class="remove-image-btn" id="remove-image-btn">
                 <i data-lucide="trash-2"></i>
@@ -695,7 +703,7 @@
 
       <div class="detail-grid">
         <div class="detail-media">
-          <img id="detail-img" src="" alt="Item Image">
+          <img id="detail-img" src="" alt="Item Image" loading="lazy">
         </div>
 
         <div class="detail-info">
@@ -788,7 +796,7 @@
       </div>
       <div class="modal-body locker-modal-body" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; padding: 20px 0;">
         <div class="locker-detail-image-wrapper" style="background-color: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; max-height: 400px; padding: 10px;">
-          <img id="locker-detail-img" src="" alt="Full Document Scan" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-sm);">
+          <img id="locker-detail-img" src="" alt="Full Document Scan" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-sm);" loading="lazy">
         </div>
         <div class="locker-detail-info" style="display: flex; flex-direction: column; gap: 14px;">
           <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>Document Type:</strong> <span id="locker-detail-type" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
@@ -923,7 +931,7 @@
             <!-- QR Code column -->
             <div class="cert-qr-col">
               <div class="cert-qr-wrapper">
-                <img id="cert-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=lostfound" alt="Verification QR Code">
+                <img id="cert-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=lostfound" alt="Verification QR Code" loading="lazy">
               </div>
               <div class="cert-qr-label">Scan to Verify</div>
               <div class="cert-qr-sub">
@@ -953,8 +961,5 @@
 
   <!-- Notification Banner (Custom alerts) -->
   <div class="custom-alert-container" id="alert-container"></div>
-
-  <!-- Main JavaScript File -->
-  <script src="app.js"></script>
 </body>
 </html>

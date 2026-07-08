@@ -72,7 +72,9 @@ try {
         `reporterEmail` VARCHAR(100) NOT NULL,
         `reporterPhone` TEXT NOT NULL,
         `reporterAddress` TEXT NOT NULL,
-        `createdAt` BIGINT NOT NULL
+        `createdAt` BIGINT NOT NULL,
+        INDEX `idx_createdAt` (`createdAt`),
+        INDEX `idx_status` (`status`)
     ) ENGINE=InnoDB");
     
     // Create Saved Docs table
