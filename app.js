@@ -1772,12 +1772,17 @@ function fitCertificateToScreen() {
     certContainer.style.transform = `scale(${scale})`;
     certContainer.style.transformOrigin = 'top left';
     
-    // Collapse the container height so there's no blank space below it
+    // Set the wrapper's height to match the scaled height exactly
+    // This perfectly pulls the buttons up to sit right under the certificate
     const exactHeight = certContainer.offsetHeight;
-    certContainer.style.marginBottom = `${(scale * exactHeight) - exactHeight}px`;
+    const scaleWrapper = document.getElementById('cert-scale-wrapper');
+    if (scaleWrapper) {
+      scaleWrapper.style.height = `${scale * exactHeight}px`;
+    }
   } else {
     certContainer.style.transform = 'none';
-    certContainer.style.marginBottom = '0px';
+    const scaleWrapper = document.getElementById('cert-scale-wrapper');
+    if (scaleWrapper) scaleWrapper.style.height = 'auto';
   }
 }
 

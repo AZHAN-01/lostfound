@@ -864,10 +864,12 @@
       </div>
       <div class="modal-body" style="padding: 0 40px 40px 40px; text-align: center; background: #ffffff;">
         
-        <!-- Printable Certificate Area -->
-        <div id="certificate-print-area" class="premium-certificate">
-          <!-- Corner Navy/Gold triangles -->
-          <div class="cert-corner-tl"></div>
+        <!-- Certificate Layout Wrapper for Mobile Scaling -->
+        <div id="cert-scale-wrapper" style="position: relative; width: 100%; transition: height 0.3s ease;">
+          <!-- Printable Certificate Area -->
+          <div id="certificate-print-area" class="premium-certificate">
+            <!-- Corner Navy/Gold triangles -->
+            <div class="cert-corner-tl"></div>
           <div class="cert-corner-br"></div>
           <div class="cert-border-frame"></div>
           
@@ -942,6 +944,7 @@
           </div>
 
 
+          </div>
         </div>
         
         <!-- Actions -->
