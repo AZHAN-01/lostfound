@@ -3281,3 +3281,15 @@ body.dark-mode .brand-logo span {
   height: 24px;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
 }
+
+.cert-serial-number {
+  position: absolute;
+  top: 25px;
+  right: 45px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0a192f;
+  font-family: monospace;
+  letter-spacing: 1px;
+  z-index: 5;
+}
