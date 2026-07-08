@@ -89,6 +89,17 @@ try {
         `createdAt` BIGINT NOT NULL
     ) ENGINE=InnoDB");
 
+    // Create Certificates table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `certificates` (
+        `id` VARCHAR(50) PRIMARY KEY,
+        `itemId` VARCHAR(50) NOT NULL,
+        `recipientName` VARCHAR(100) NOT NULL,
+        `recipientEmail` VARCHAR(100) NOT NULL,
+        `itemTitle` VARCHAR(255) NOT NULL,
+        `dateAwarded` VARCHAR(20) NOT NULL,
+        `createdAt` BIGINT NOT NULL
+    ) ENGINE=InnoDB");
+
     // Create User OTPs table for secure server-side verification
     $pdo->exec("CREATE TABLE IF NOT EXISTS `user_otps` (
         `user_id` VARCHAR(50) PRIMARY KEY,

@@ -661,6 +661,11 @@ async function transitionToDashboard() {
     if (docsResponse.ok) {
       dbSavedDocs = await docsResponse.json();
     }
+
+    const certsResponse = await fetch(`api/certificates.php?email=${currentUser.email}`);
+    if (certsResponse.ok) {
+      dbCertificates = await certsResponse.json();
+    }
   } catch (e) {
     console.error("Failed to load dashboard data: ", e);
     showAlert("Failed to load dashboard data from server.", "error");
@@ -723,6 +728,9 @@ let activeQuoteIndex = 0;
 let quoteRotationTimer = null;
 let nextPrefetchedQuote = null;
 let isPrefetching = false;
+
+// Certificates state
+let dbCertificates = [];
 
 // Search/Filter states
 let lostSearchQuery = '';
@@ -1756,7 +1764,7 @@ function createConfetti() {
 }
 
 // Show Certificate of Appreciation
-function showCertificate(returnerName, itemTitle) {
+function showCertificate(returnerName, itemTitle, dateAwarded) {
   const certModal = document.getElementById('certificate-modal');
   const certRecipientEl = document.getElementById('cert-recipient-name');
   const certItemTitleEl = document.getElementById('cert-item-title');
@@ -1766,7 +1774,8 @@ function showCertificate(returnerName, itemTitle) {
   if (certItemTitleEl) certItemTitleEl.textContent = `"${itemTitle}"`;
   if (certDateEl) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    certDateEl.textContent = new Date().toLocaleDateString('en-US', options);
+    const dateObj = dateAwarded ? new Date(dateAwarded) : new Date();
+    certDateEl.textContent = dateObj.toLocaleDateString('en-US', options);
   }
   
   if (certModal) {
@@ -1947,11 +1956,39 @@ if (gotBackBtn) {
         }
       }
       
+      // 3. Create the Certificate row in the separate certificates database table!
+      const dateAwardedStr = new Date().toISOString().split('T')[0];
+      const certResponse = await fetch('api/certificates.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: activeViewingItem.id,
+          recipientName: returnerName,
+          recipientEmail: returnerEmail,
+          itemTitle: activeViewingItem.title,
+          dateAwarded: dateAwardedStr
+        })
+      });
+      
+      if (certResponse.ok) {
+        const certData = await certResponse.json();
+        if (currentUser && returnerEmail === currentUser.email) {
+          dbCertificates.unshift({
+            id: certData.id,
+            itemId: activeViewingItem.id,
+            recipientName: returnerName,
+            recipientEmail: returnerEmail,
+            itemTitle: activeViewingItem.title,
+            dateAwarded: dateAwardedStr
+          });
+        }
+      }
+
       // Close the detail modal
       detailModal.classList.remove('active');
       
       // Show the Certificate of Appreciation Modal for the returner
-      showCertificate(returnerName, activeViewingItem.title);
+      showCertificate(returnerName, activeViewingItem.title, dateAwardedStr);
       
       // Refresh stats and items lists
       renderStats();
@@ -3239,22 +3276,18 @@ function renderCertificates() {
   if (!certsGrid) return;
   certsGrid.innerHTML = '';
 
-  const earnedCerts = dbItems.filter(item => {
-    return item.status === 'resolved_found' && currentUser && item.reporterEmail === currentUser.email;
-  });
-
   if (certsResultsCountEl) {
-    certsResultsCountEl.textContent = `Showing ${earnedCerts.length} certificate${earnedCerts.length === 1 ? '' : 's'}`;
+    certsResultsCountEl.textContent = `Showing ${dbCertificates.length} certificate${dbCertificates.length === 1 ? '' : 's'}`;
   }
 
-  if (earnedCerts.length === 0) {
+  if (dbCertificates.length === 0) {
     certsGrid.classList.add('hidden');
     if (certsEmptyState) certsEmptyState.classList.remove('hidden');
   } else {
     certsGrid.classList.remove('hidden');
     if (certsEmptyState) certsEmptyState.classList.add('hidden');
 
-    earnedCerts.forEach(item => {
+    dbCertificates.forEach(cert => {
       const card = document.createElement('div');
       card.className = 'item-card cert-preview-card';
       card.style.border = '1px solid #d4af37';
@@ -3267,9 +3300,9 @@ function renderCertificates() {
           <span class="badge" style="background: #d4af37; color: #fff; position: absolute; top: 10px; left: 10px;">CERTIFICATE</span>
         </div>
         <div class="card-body" style="padding: 15px;">
-          <span class="card-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(item.date)}</span>
+          <span class="card-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(cert.dateAwarded)}</span>
           <h3 class="card-title" style="font-size: 1rem; font-weight: 600; margin-top: 5px;">Honesty Award</h3>
-          <p class="card-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">For returning: "${item.title}"</p>
+          <p class="card-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">For returning: "${cert.itemTitle}"</p>
           <div class="card-footer" style="margin-top: 15px; border-top: 1px solid var(--card-border); padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 0.8rem; font-weight: 500; color: #d4af37;">View Certificate</span>
             <i data-lucide="arrow-right" style="width: 14px; height: 14px; color: #d4af37;"></i>
@@ -3278,7 +3311,7 @@ function renderCertificates() {
       `;
 
       card.addEventListener('click', () => {
-        showCertificate(item.reporterName, item.title);
+        showCertificate(cert.recipientName, cert.itemTitle, cert.dateAwarded);
       });
       certsGrid.appendChild(card);
     });
