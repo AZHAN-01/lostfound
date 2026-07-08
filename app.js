@@ -1817,64 +1817,14 @@ if (btnCloseCert) {
 const btnPrintCert = document.getElementById('btn-print-certificate');
 if (btnPrintCert) {
   btnPrintCert.addEventListener('click', () => {
-    const printContents = document.getElementById('certificate-print-area').outerHTML;
+    // Add print class to body for screen-to-print CSS override
+    document.body.classList.add('printing-active');
     
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Certificate of Appreciation</title>
-          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
-          <link rel="stylesheet" href="style.css">
-          <style>
-            body {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              margin: 0;
-              background: #fff;
-              color: #0b1a30;
-              font-family: 'Outfit', sans-serif;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .premium-certificate {
-              width: 780px !important;
-              max-width: 780px !important;
-              box-shadow: none !important;
-              border: 3px solid #d4af37 !important;
-              box-sizing: border-box;
-            }
-            @media print {
-              body {
-                background: none;
-              }
-              @page {
-                size: landscape;
-                margin: 0;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${printContents}
-          <!-- Re-initialize icons inside print window if needed -->
-          <script src="https://unpkg.com/lucide@latest"></script>
-          <script>
-            if (typeof lucide !== 'undefined') {
-              lucide.createIcons();
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
+    // Give browser brief time to layout, then open print dialog
     setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 800);
+      window.print();
+      document.body.classList.remove('printing-active');
+    }, 150);
   });
 }
 
