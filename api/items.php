@@ -1,7 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -83,6 +83,24 @@ switch ($method) {
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(["message" => "Failed to report item: " . $e->getMessage()]);
+        }
+        break;
+
+    case 'PUT':
+        $data = json_decode(file_get_contents("php://input"));
+        if (empty($data->id) || empty($data->status)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Item ID and status are required."]);
+            exit;
+        }
+
+        try {
+            $stmt = $pdo->prepare("UPDATE `items` SET `status` = ? WHERE `id` = ?");
+            $stmt->execute([$data->status, $data->id]);
+            echo json_encode(["message" => "Item status updated successfully."]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Failed to update item status: " . $e->getMessage()]);
         }
         break;
 

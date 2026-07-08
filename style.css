@@ -215,6 +215,17 @@ button, input, select, textarea {
   transform: translateY(-1px);
 }
 
+.btn-success {
+  background-color: var(--color-found);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
 .btn-block {
   display: flex;
   width: 100%;
