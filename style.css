@@ -4506,17 +4506,18 @@ body.dark-mode .brand-logo span {
     margin: 10px auto !important;
   }
   .certificate-card .modal-body {
-    overflow-x: hidden !important;
-    padding: 10px !important;
-    display: flex;
-    justify-content: center;
+    overflow: hidden !important;
+    padding: 15px 10px !important;
+    display: block !important;
   }
   .premium-certificate {
     min-width: 800px !important;
-    margin: 0 auto !important;
-    transform: scale(0.42);
-    transform-origin: top center;
-    margin-bottom: -330px !important;
+    margin: 0 !important;
+    /* Standard zoom for Chrome/Safari/Edge (Perfect scaling) */
+    zoom: 0.42;
+    /* Fallback for Firefox */
+    -moz-transform: scale(0.42);
+    -moz-transform-origin: top left;
   }
 }
 
