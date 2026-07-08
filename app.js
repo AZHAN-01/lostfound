@@ -1566,7 +1566,7 @@ function renderLockerGallery() {
           status: 'lost',
           date: new Date().toISOString().split('T')[0],
           location: currentUser.address || 'Unknown Location',
-          description: `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull AI OCR Text transcript:\n${doc.rawText}`,
+          description: `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull Gemini AI Text transcript:\n${doc.rawText}`,
           image: doc.image || DEFAULT_DOCUMENT_PLACEHOLDER,
           reporterName: displayUserName,
           reporterEmail: currentUser.email,
@@ -2133,7 +2133,7 @@ function toggleReportFormMode() {
       const doc = dbSavedDocs.find(d => d.id === reportSelectDoc.value);
       if (doc) {
         reportTitle.value = doc.name;
-        reportDescription.value = `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull AI OCR Text transcript:\n${doc.rawText}`;
+        reportDescription.value = `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull Gemini AI Text transcript:\n${doc.rawText}`;
         if (doc.image) {
           currentImageData = doc.image;
           imagePreview.src = currentImageData;
@@ -2197,7 +2197,7 @@ if (reportSelectDoc) {
       if (reportTitle) reportTitle.value = doc.name;
 
       if (reportDescription) {
-        reportDescription.value = `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull AI OCR Text transcript:\n${doc.rawText}`;
+        reportDescription.value = `Scanned Credentials:\n- Holder Name: ${doc.holderName}\n- Document ID Number: ${doc.docId}\n- Expiration Date: ${doc.expiryDate}\n\nFull Gemini AI Text transcript:\n${doc.rawText}`;
       }
 
       if (doc.image) {
@@ -2379,7 +2379,7 @@ function runFoundDocumentOcrAndMatch(base64Data) {
     matchContainer.innerHTML = '';
   }
 
-  showAlert("AI OCR Scanner: Analyzing document image...", "info");
+  showAlert("Google Gemini AI: Analyzing document image...", "info");
 
   fetch('api/analyze.php', {
     method: 'POST',
@@ -2492,7 +2492,7 @@ function processAndMatchFoundData(data) {
 
   if (reportTitle) reportTitle.value = `Found ${data.name || 'Document'}`;
   if (reportDescription) {
-    reportDescription.value = `Scanned Credentials:\n- Holder Name: ${data.holderName || 'Unknown'}\n- Document ID Number: ${data.id || 'Unknown'}\n- Expiration Date: ${data.expiryDate || 'N/A'}\n\nFull OCR Transcript:\n${data.rawText || ''}`;
+    reportDescription.value = `Scanned Credentials:\n- Holder Name: ${data.holderName || 'Unknown'}\n- Document ID Number: ${data.id || 'Unknown'}\n- Expiration Date: ${data.expiryDate || 'N/A'}\n\nFull Gemini AI Transcript:\n${data.rawText || ''}`;
   }
 
   // Populate and show the AI analysis review block
