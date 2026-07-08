@@ -1758,18 +1758,40 @@ function createConfetti() {
 }
 
 // Show Certificate of Appreciation
-function showCertificate(returnerName, itemTitle, dateAwarded) {
+function showCertificate(returnerName, itemTitle, dateAwarded, certId) {
   const certModal = document.getElementById('certificate-modal');
   const certRecipientEl = document.getElementById('cert-recipient-name');
   const certItemTitleEl = document.getElementById('cert-item-title');
   const certDateEl = document.getElementById('cert-date');
+  const certSerialEl = document.getElementById('cert-serial-number');
+  const certQrCodeEl = document.getElementById('cert-qr-code');
   
   if (certRecipientEl) certRecipientEl.textContent = returnerName;
   if (certItemTitleEl) certItemTitleEl.textContent = `"${itemTitle}"`;
+  
+  const dateObj = dateAwarded ? new Date(dateAwarded) : new Date();
+  const dateAwardedStr = dateObj.toISOString().split('T')[0];
   if (certDateEl) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const dateObj = dateAwarded ? new Date(dateAwarded) : new Date();
     certDateEl.textContent = dateObj.toLocaleDateString('en-US', options);
+  }
+
+  // Generate deterministic serial number
+  let serialNo = '';
+  if (certId) {
+    const numericPart = certId.replace(/[^0-9]/g, '');
+    serialNo = `LF-${numericPart || Math.floor(10000000 + Math.random() * 90000000)}`;
+  } else {
+    serialNo = `LF-${Math.floor(10000000 + Math.random() * 90000000)}`;
+  }
+  if (certSerialEl) {
+    certSerialEl.textContent = `Certificate No: ${serialNo}`;
+  }
+
+  // Generate QR code content for scan verification
+  const verificationText = `VERIFIED HONESTY CERTIFICATE\nCertificate No: ${serialNo}\nPresented to: ${returnerName}\nFor returning: ${itemTitle}\nAwarded on: ${dateAwardedStr}\nVerification: lostfound Platform`;
+  if (certQrCodeEl) {
+    certQrCodeEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationText)}`;
   }
   
   if (certModal) {
@@ -1964,8 +1986,10 @@ if (gotBackBtn) {
         })
       });
       
+      let finalCertId = null;
       if (certResponse.ok) {
         const certData = await certResponse.json();
+        finalCertId = certData.id;
         if (currentUser && returnerEmail === currentUser.email) {
           dbCertificates.unshift({
             id: certData.id,
@@ -1982,7 +2006,7 @@ if (gotBackBtn) {
       detailModal.classList.remove('active');
       
       // Show the Certificate of Appreciation Modal for the returner
-      showCertificate(returnerName, activeViewingItem.title, dateAwardedStr);
+      showCertificate(returnerName, activeViewingItem.title, dateAwardedStr, finalCertId);
       
       // Refresh stats and items lists
       renderStats();
