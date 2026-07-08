@@ -4506,13 +4506,17 @@ body.dark-mode .brand-logo span {
     margin: 10px auto !important;
   }
   .certificate-card .modal-body {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    padding: 15px !important;
+    overflow-x: hidden !important;
+    padding: 10px !important;
+    display: flex;
+    justify-content: center;
   }
   .premium-certificate {
     min-width: 800px !important;
     margin: 0 auto !important;
+    transform: scale(0.42);
+    transform-origin: top center;
+    margin-bottom: -330px !important;
   }
 }
 
