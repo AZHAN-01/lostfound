@@ -1864,18 +1864,36 @@ if (gotBackBtn) {
     if (!activeViewingItem) return;
     
     let returnerName = '';
+    let returnerEmail = '';
     const nextStatus = activeViewingItem.status === 'found' ? 'resolved_found' : 'resolved_lost';
+    let matchingFoundItem = null;
     
     if (activeViewingItem.status === 'found') {
       returnerName = activeViewingItem.reporterName;
+      returnerEmail = activeViewingItem.reporterEmail;
     } else {
-      returnerName = prompt("Who returned your document/item to you? Enter their name to generate a Certificate of Appreciation:");
-      if (returnerName === null) return; // user cancelled
-      returnerName = returnerName.trim();
-      if (returnerName === '') returnerName = "Anonymous Good Samaritan";
+      // It's a lost item. Automatically scan the database to find the matching 'found' item
+      matchingFoundItem = dbItems.find(item => {
+        if (item.status !== 'found') return false;
+        if (item.category.toLowerCase() !== activeViewingItem.category.toLowerCase()) return false;
+        
+        const lostTitle = activeViewingItem.title.toLowerCase();
+        const foundTitle = item.title.toLowerCase();
+        return lostTitle.includes(foundTitle) || foundTitle.includes(lostTitle) || 
+               lostTitle.split(/\s+/).some(word => word.length > 2 && foundTitle.includes(word));
+      });
+
+      if (matchingFoundItem) {
+        returnerName = matchingFoundItem.reporterName;
+        returnerEmail = matchingFoundItem.reporterEmail;
+      } else {
+        returnerName = "Community Benefactor";
+        returnerEmail = "support@lostfound.org";
+      }
     }
     
     try {
+      // 1. Update the status of the current item
       const response = await fetch('api/items.php', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1891,10 +1909,23 @@ if (gotBackBtn) {
       const dbItem = dbItems.find(item => item.id === activeViewingItem.id);
       if (dbItem) dbItem.status = nextStatus;
       
+      // 2. If it was a lost item and we matched a found item, update the found item to resolved_found so the finder gets the certificate
+      if (matchingFoundItem) {
+        const matchResponse = await fetch('api/items.php', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: matchingFoundItem.id, status: 'resolved_found' })
+        });
+        if (matchResponse.ok) {
+          const dbMatchItem = dbItems.find(item => item.id === matchingFoundItem.id);
+          if (dbMatchItem) dbMatchItem.status = 'resolved_found';
+        }
+      }
+      
       // Close the detail modal
       detailModal.classList.remove('active');
       
-      // Show the Certificate of Appreciation Modal
+      // Show the Certificate of Appreciation Modal for the returner
       showCertificate(returnerName, activeViewingItem.title);
       
       // Refresh stats and items lists
