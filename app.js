@@ -1874,27 +1874,29 @@ if (btnPrintCert) {
     const originalCert = document.querySelector('.premium-certificate');
     
     // Create an invisible wrapper so HTML2CANVAS can render it within viewport bounds
-    // Set explicit large bounds to prevent CSS clipping of overflows
+    // Set position absolute (not fixed) to prevent viewport clipping on mobile
     const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed';
+    wrapper.style.position = 'absolute';
     wrapper.style.top = '0';
     wrapper.style.left = '0';
-    wrapper.style.width = '1600px';
-    wrapper.style.height = '1200px';
     wrapper.style.zIndex = '-9999';
     wrapper.style.opacity = '0';
     wrapper.style.pointerEvents = 'none';
 
+    // Guarantee the clone renders at full high-resolution desktop width
+    const targetWidth = Math.max(originalCert.offsetWidth, 906);
+    
     // Create a 100% scale clone
     const printClone = originalCert.cloneNode(true);
     printClone.style.transform = 'none';
     printClone.style.marginBottom = '0px';
+    printClone.style.width = targetWidth + 'px';
     
     wrapper.appendChild(printClone);
     document.body.appendChild(wrapper);
 
     // Dynamic margin calculation to center perfectly on A4 Landscape
-    const certWidth = printClone.offsetWidth || 906;
+    const certWidth = printClone.offsetWidth || targetWidth;
     const certHeight = printClone.offsetHeight || 650;
     
     const certRatio = certWidth / certHeight;
@@ -1924,7 +1926,18 @@ if (btnPrintCert) {
       margin:       [marginTop, marginLeft, marginTop, marginLeft],
       filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      html2canvas:  { 
+        scale: 3, 
+        useCORS: true, 
+        backgroundColor: '#ffffff', 
+        logging: false,
+        windowWidth: certWidth + 50,
+        windowHeight: certHeight + 50,
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0
+      },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
