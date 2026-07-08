@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lostfound - Modern Lost & Found Platform</title>
+  <!-- Google Fonts: Plus Jakarta Sans for UI, Outfit for Headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Tesseract.js for client-side OCR fallback -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+  <!-- Background Ambient Glows -->
+  <div class="bg-glow-wrapper">
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+  </div>
+
+  <!-- AUTH SECTION (Initial State) -->
+  <section id="auth-section" class="auth-section">
+    <div class="auth-container">
+      
+      <!-- Brand Sidebar / Banner -->
+      <div class="auth-brand-side">
+        <div class="brand-logo" style="flex-direction: column; align-items: center; text-align: center; gap: 20px; width: 100%;">
+          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 240px; height: 240px; box-shadow: 0 16px 48px rgba(0,0,0,0.35);">
+          <span style="font-size: 2.2rem;">lost<span>found</span></span>
+        </div>
+        <div class="brand-carousel">
+          <div class="carousel-slide active">
+            <h2>Reconnecting what's lost, preserving what's found.</h2>
+            <p>The ultimate hub to report missing items, claim found belongings, and help your community stay complete.</p>
+          </div>
+        </div>
+        <div class="brand-footer">
+          <p>© 2026 lostfound. Built for trust and efficiency.</p>
+        </div>
+      </div>
+
+      <!-- Form container (Toggles between Login/Register) -->
+      <div class="auth-form-side">
+        <!-- Mobile Logo Header (visible only on mobile) -->
+        <div class="mobile-logo-header" style="flex-direction: column; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: center; width: 100%;">
+          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 140px; height: 140px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+          <span style="font-size: 2rem; font-weight: 800; font-family: var(--font-head);">lost<span>found</span></span>
+        </div>
+
+        <!-- Floating Theme Toggle -->
+        <button id="theme-toggle-auth" class="theme-toggle-btn" aria-label="Toggle Theme">
+          <i data-lucide="sun" class="sun-icon">☀</i>
+          <i data-lucide="moon" class="moon-icon">🌙</i>
+        </button>
+
+        <!-- LOGIN FORM CONTAINER -->
+        <div id="login-container" class="form-container active">
+          <div class="form-header">
+            <h1>Welcome Back</h1>
+            <p>Access your dashboard and manage reported items.</p>
+          </div>
+
+          <form id="login-form">
+            <div class="form-group">
+              <label for="login-identifier">Email or Phone Number</label>
+              <div class="input-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="login-identifier" required placeholder="name@email.com or +91" autocapitalize="none" autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label for="login-password" style="margin-bottom: 0;">Password</label>
+                <button type="button" id="go-to-forgot" class="link-btn" style="font-size: 0.8rem;">Forgot Password?</button>
+              </div>
+              <div class="input-wrapper">
+                <i data-lucide="lock" class="input-icon"></i>
+                <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="toggle-password" tabindex="-1">
+                  <i data-lucide="eye" class="eye-open"></i>
+                  <i data-lucide="eye-off" class="eye-closed hidden"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group hidden" id="login-otp-group">
+              <label for="login-otp">Verification Code (OTP)</label>
+              <div class="input-wrapper">
+                <i data-lucide="shield-check" class="input-icon"></i>
+                <input type="text" id="login-otp" placeholder="Enter 4-digit code" maxlength="4" pattern="\d{4}" inputmode="numeric" autocomplete="one-time-code">
+              </div>
+              <p class="form-help-text" id="login-otp-delivery-msg" style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);"></p>
+            </div>
+
+            <div class="form-error-msg" id="login-error-msg"></div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              <span>Sign In</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </form>
+
+          <p class="form-toggle-prompt">
+            New to lostfound? <button type="button" id="go-to-register" class="link-btn">Create an account</button>
+          </p>
+        </div>
+
+        <!-- REGISTER FORM CONTAINER -->
+        <div id="register-container" class="form-container">
+          <div class="form-header">
+            <h1>Create Account</h1>
+            <p>Join the lostfound community and start tracking items.</p>
+          </div>
+
+          <form id="register-form">
+            <div class="form-group">
+              <label for="reg-name">Full Name (as in documents)</label>
+              <div class="input-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="reg-name" required placeholder="your name" autocomplete="name">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-email">Email Address</label>
+                <div class="input-wrapper">
+                  <i data-lucide="mail" class="input-icon"></i>
+                  <input type="email" id="reg-email" required placeholder="mail@gmail.com" autocapitalize="none" autocomplete="email">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-phone">Phone Number</label>
+                <div class="input-wrapper">
+                  <i data-lucide="phone" class="input-icon"></i>
+                  <input type="tel" id="reg-phone" required placeholder="+91" autocomplete="tel">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-address">Address</label>
+              <div class="input-wrapper">
+                <i data-lucide="map-pin" class="input-icon"></i>
+                <input type="text" id="reg-address" required placeholder="Street, City, Zip Code" autocomplete="street-address">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <div class="input-wrapper">
+                  <i data-lucide="lock" class="input-icon"></i>
+                  <input type="password" id="reg-password" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-confirm-password">Confirm Password</label>
+                <div class="input-wrapper">
+                  <i data-lucide="shield-check" class="input-icon"></i>
+                  <input type="password" id="reg-confirm-password" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-error-msg" id="register-error-msg"></div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              <span>Register Account</span>
+              <i data-lucide="user-plus"></i>
+            </button>
+          </form>
+
+          <p class="form-toggle-prompt">
+            Already have an account? <button type="button" id="go-to-login" class="link-btn">Sign in instead</button>
+          </p>
+        </div>
+
+        <!-- FORGOT PASSWORD FORM CONTAINER -->
+        <div id="forgot-container" class="form-container">
+          <div class="form-header">
+            <h1>Reset Password</h1>
+            <p>Enter your email or phone number to request a password reset.</p>
+          </div>
+
+          <form id="forgot-form">
+            <!-- Step 1: Enter Identifier -->
+            <div id="forgot-step-identifier">
+              <div class="form-group">
+                <label for="forgot-identifier">Email or Phone Number</label>
+                <div class="input-wrapper">
+                  <i data-lucide="user" class="input-icon"></i>
+                  <input type="text" id="forgot-identifier" required placeholder="name@email.com or +91" autocapitalize="none">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">
+                <span>Send OTP</span>
+                <i data-lucide="send"></i>
+              </button>
+            </div>
+
+            <!-- Step 2: Enter OTP & New Password (hidden by default) -->
+            <div id="forgot-step-reset" class="hidden">
+              <div class="form-group">
+                <label for="forgot-otp">Verification Code (OTP)</label>
+                <div class="input-wrapper">
+                  <i data-lucide="shield-check" class="input-icon"></i>
+                  <input type="text" id="forgot-otp" placeholder="Enter 4-digit code" maxlength="4" pattern="\d{4}" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+                <p class="form-help-text" id="forgot-otp-delivery-msg" style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);"></p>
+              </div>
+
+              <div class="form-group">
+                <label for="forgot-new-password">New Password</label>
+                <div class="input-wrapper">
+                  <i data-lucide="lock" class="input-icon"></i>
+                  <input type="password" id="forgot-new-password" placeholder="••••••••" autocomplete="new-password">
+                  <button type="button" class="toggle-password" tabindex="-1">
+                    <i data-lucide="eye" class="eye-open"></i>
+                    <i data-lucide="eye-off" class="eye-closed hidden"></i>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">
+                <span>Reset Password</span>
+                <i data-lucide="lock"></i>
+              </button>
+            </div>
+
+            <div class="form-error-msg" id="forgot-error-msg"></div>
+          </form>
+
+          <p class="form-toggle-prompt">
+            Remembered your password? <button type="button" id="go-back-to-login" class="link-btn">Sign in</button>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD SECTION (Hidden by default) -->
+  <section id="dashboard-section" class="dashboard-section hidden">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-container">
+        <div class="brand-logo">
+          <img src="logo.jpg" alt="lostfound Logo" class="logo-icon" style="border-radius: 50%; object-fit: cover; width: 96px; height: 96px; box-shadow: 0 6px 16px rgba(0,0,0,0.15);">
+          <span>lost<span>found</span></span>
+        </div>
+
+        <nav class="nav-actions">
+          <button id="theme-toggle-dashboard" class="theme-toggle-btn" aria-label="Toggle Theme">
+            <i data-lucide="sun" class="sun-icon">☀</i>
+            <i data-lucide="moon" class="moon-icon">🌙</i>
+          </button>
+
+          <button id="btn-report-trigger" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i>
+            <span>Report Item</span>
+          </button>
+
+          <div class="profile-dropdown-wrapper">
+            <button class="profile-btn" id="profile-btn">
+              <div class="avatar" id="user-avatar-initials">JD</div>
+              <div class="profile-details-mini">
+                <span class="user-display-name" id="user-display-name">John Doe</span>
+                <span class="user-role">Member</span>
+              </div>
+              <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div class="profile-dropdown-menu" id="profile-dropdown-menu">
+              <div class="dropdown-user-info">
+                <h4 id="menu-user-name">John Doe</h4>
+                <p id="menu-user-email">john@example.com</p>
+                <p id="menu-user-phone" class="phone-text">+1 234 567 8900</p>
+                <p id="menu-user-address" class="address-text">123 Main St, New York</p>
+              </div>
+              <hr class="menu-divider">
+              <button id="btn-logout" class="dropdown-item logout-item">
+                <i data-lucide="log-out"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <!-- Sidebar Navigation -->
+      <nav class="dashboard-sidebar">
+        <ul class="sidebar-nav">
+          <li class="nav-item active" data-view="upload">
+            <i data-lucide="scan-eye"></i>
+            <span>AI Scanner</span>
+          </li>
+          <li class="nav-item" data-view="lost-items">
+            <i data-lucide="alert-circle"></i>
+            <span>Lost Items</span>
+          </li>
+          <li class="nav-item" data-view="found-items">
+            <i data-lucide="check-circle2"></i>
+            <span>Found Items</span>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content Panels -->
+      <div class="views-panel">
+        
+        <!-- View: Upload & AI Scanner -->
+        <div id="view-upload" class="dashboard-view active">
+          
+          <!-- Dynamic Inspirational Quotes Card -->
+          <div class="quotes-card" id="quotes-card">
+            <div class="quote-decor">
+              <i data-lucide="quote"></i>
+            </div>
+            <div class="quote-content">
+              <p class="quote-text" id="quote-text">"We find ourselves by losing ourselves in the service of others."</p>
+              <span class="quote-author" id="quote-author">— Mahatma Gandhi</span>
+            </div>
+            <button id="btn-next-quote" class="btn-next-quote" aria-label="Rotate Quote">
+              <i data-lucide="sparkles"></i>
+            </button>
+          </div>
+
+          <!-- Scanner Grid Area -->
+          <div class="scanner-grid">
+            
+            <!-- Left Panel: Dropzone & Image Scanner Preview -->
+            <div class="scanner-panel dropzone-panel">
+              <div class="panel-header">
+                <h3>Document Upload</h3>
+                <span class="panel-subtitle">Upload ID Cards, Passports, or Receipts</span>
+              </div>
+              <div class="doc-drop-zone" id="doc-drop-zone">
+                <div class="drop-zone-idle" id="drop-zone-idle">
+                  <i data-lucide="upload-cloud" class="upload-icon"></i>
+                  <p class="primary-text">Drag & drop document image or <span>browse</span></p>
+                  <button type="button" id="btn-doc-camera" class="btn btn-secondary" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 0.85rem; padding: 6px 12px; width: auto; margin-left: auto; margin-right: auto;">
+                    <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+                    <span>Take Photo</span>
+                  </button>
+                  <p class="secondary-text" style="margin-top: 10px;">Supports PNG, JPG, JPEG (Max 10MB)</p>
+                </div>
+                <div class="drop-zone-active hidden" id="drop-zone-active">
+                  <img id="doc-image-preview" src="" alt="Document Preview">
+                  <div class="scan-laser hidden" id="scan-laser"></div>
+                </div>
+                <input type="file" id="doc-image-input" accept="image/*" class="hidden-file-input">
+                <input type="file" id="doc-camera-input" accept="image/*" capture="environment" class="hidden-file-input">
+              </div>
+              <div class="scanner-actions">
+                <button type="button" id="btn-run-scan" class="btn btn-primary btn-block" disabled>
+                  <i data-lucide="cpu"></i>
+                  <span>AI Document Analysis</span>
+                </button>
+                <button type="button" id="btn-clear-scan" class="btn btn-secondary btn-block hidden">
+                  <i data-lucide="trash-2"></i>
+                  <span>Remove Document</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Panel: AI OCR Console & Extracted Form -->
+            <div class="scanner-panel console-panel">
+              <div class="panel-header">
+                <h3>Verify and Save</h3>
+                <span class="panel-subtitle">AI Analysis Console</span>
+              </div>
+              
+              <!-- Status Message Box -->
+              <div class="console-log-box" id="console-status-box">
+                <span id="console-status-message">Awaiting document upload...</span>
+              </div>
+
+              <!-- Extracted Fields Card Form -->
+              <form id="extracted-fields-form" class="extracted-fields-form hidden">
+                <div class="form-group">
+                  <label for="ext-doc-name">Document Label / Title</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="ext-doc-name" required placeholder="e.g. John's Driver's License">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="ext-doc-type">Document Type</label>
+                    <div class="input-wrapper">
+                      <select id="ext-doc-type" required>
+                        <option value="driver_license">Driver's License</option>
+                        <option value="passport">Passport</option>
+                        <option value="identity_card">Identity Card</option>
+                        <option value="health_card">Health Card</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="student_id">Student / Work ID</option>
+                        <option value="receipt">Receipt</option>
+                        <option value="other">Other Document</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="ext-doc-id">Document ID / Number</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="ext-doc-id" placeholder="Extracted ID number">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="ext-holder-name">Primary Holder Name</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="ext-holder-name" placeholder="Extracted full name">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="ext-expiry-date">Expiration Date</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="ext-expiry-date" placeholder="YYYY-MM-DD or N/A">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="ext-raw-text">Extracted Raw Text Summary</label>
+                  <div class="input-wrapper">
+                    <textarea id="ext-raw-text" rows="3" placeholder="AI extracted raw text transcript..."></textarea>
+                  </div>
+                </div>
+                <button type="submit" id="btn-save-doc" class="btn btn-primary btn-block">
+                  <i data-lucide="shield-check"></i>
+                  <span>Save Document to Safe Locker</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Document Safe Locker Gallery -->
+          <div class="safe-locker-section">
+            <div class="section-header">
+              <div class="header-info">
+                <h3>Document Safe Locker</h3>
+                <p>Private repository of scanned documents.</p>
+              </div>
+              <div class="locker-stats">
+                <i data-lucide="shield"></i>
+                <span id="locker-count">0 Documents Saved</span>
+              </div>
+            </div>
+            <div class="locker-grid" id="locker-grid">
+              <!-- Dynamically populated locker cards go here -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- View: Lost Items -->
+        <div id="view-lost-items" class="dashboard-view hidden">
+          <div class="view-header-row">
+            <h2>Lost Items Directory</h2>
+            <span class="results-count" id="lost-results-count">Showing 0 items</span>
+          </div>
+
+          <!-- Search and Filtering Hub -->
+          <section class="filters-hub">
+            <div class="search-row">
+              <div class="search-bar-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="lost-search-input" placeholder="Search lost documents...">
+                <button id="lost-clear-search" class="clear-search-btn hidden">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Empty Feed State -->
+          <div class="empty-state hidden" id="lost-empty-state">
+            <div class="empty-illustration">
+              <i data-lucide="search-code"></i>
+            </div>
+            <h3>No lost items match your search</h3>
+            <p>Refine your keyword search or check a different category.</p>
+            <button id="lost-btn-empty-reset" class="btn btn-secondary">Reset Filters</button>
+          </div>
+
+          <!-- Items Grid -->
+          <div class="items-grid" id="lost-items-grid"></div>
+        </div>
+
+        <!-- View: Found Items -->
+        <div id="view-found-items" class="dashboard-view hidden">
+          <div class="view-header-row">
+            <h2>Found Items Directory</h2>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <button id="btn-report-found-trigger" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="plus-circle"></i>
+                <span>Report Found Document</span>
+              </button>
+              <span class="results-count" id="found-results-count">Showing 0 items</span>
+            </div>
+          </div>
+
+          <!-- Search and Filtering Hub -->
+          <section class="filters-hub">
+            <div class="search-row">
+              <div class="search-bar-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="found-search-input" placeholder="Search found documents...">
+                <button id="found-clear-search" class="clear-search-btn hidden">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Empty Feed State -->
+          <div class="empty-state hidden" id="found-empty-state">
+            <div class="empty-illustration">
+              <i data-lucide="search-code"></i>
+            </div>
+            <h3>No found items match your search</h3>
+            <p>Refine your keyword search or check a different category.</p>
+            <button id="found-btn-empty-reset" class="btn btn-secondary">Reset Filters</button>
+          </div>
+
+          <!-- Items Grid -->
+          <div class="items-grid" id="found-items-grid"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT ITEM MODAL -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Report Lost or Found Item</h2>
+        <button class="close-modal-btn" id="close-report-modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="report-form">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="report-title">Item Name / Title</label>
+            <div class="input-wrapper">
+              <input type="text" id="report-title" required readonly placeholder="Will be filled from selected document">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="report-status">Report Type</label>
+            <div class="input-wrapper">
+              <select id="report-status" required>
+                <option value="lost" selected>Lost</option>
+                <option value="found">Found</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Select Saved Document Option -->
+        <div class="form-group" id="select-doc-group">
+          <label for="report-select-doc">Select Document (Required)</label>
+          <div class="input-wrapper">
+            <select id="report-select-doc" required>
+              <option value="">-- Choose a saved document --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="report-date">Date Lost / Found</label>
+            <div class="input-wrapper">
+              <input type="date" id="report-date" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="report-location">Location Specifics</label>
+          <div class="input-wrapper">
+            <i data-lucide="map-pin" class="input-icon"></i>
+            <input type="text" id="report-location" required placeholder="e.g. Central Park near fountain, Bus line 42">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="report-description">Description & Features</label>
+          <div class="input-wrapper">
+            <textarea id="report-description" required readonly rows="3" placeholder="Will be filled from selected document"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" id="report-photo-group">
+          <label id="report-photo-label">Photo Attachment (From Selected Document)</label>
+          <div class="file-drop-zone" id="file-drop-zone" style="pointer-events: none; opacity: 0.85;">
+            <i data-lucide="image" class="upload-icon"></i>
+            <div class="drop-text" id="report-drop-text">
+              <p class="primary-text" style="color: var(--text-muted);" id="report-drop-text-primary">Photo is linked to the selected document</p>
+              <button type="button" id="btn-report-camera" class="btn btn-secondary hidden" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 0.85rem; padding: 6px 12px; width: auto; margin-left: auto; margin-right: auto;">
+                <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+                <span>Take Photo</span>
+              </button>
+            </div>
+            <input type="file" id="report-image-input" accept="image/*" class="hidden-file-input" disabled>
+            <input type="file" id="report-camera-input" accept="image/*" capture="environment" class="hidden-file-input" disabled>
+            <!-- Image Preview Element -->
+            <div class="image-preview-container hidden" id="image-preview-container">
+              <img id="image-preview" src="" alt="Item upload preview">
+              <div class="scan-laser hidden" id="report-scan-laser"></div>
+              <button type="button" class="remove-image-btn" id="remove-image-btn">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Match Result Container -->
+        <div id="match-result-container" class="match-result-container hidden"></div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-report">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DETAIL ITEM MODAL -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-card detail-card">
+      <div class="modal-header">
+        <span class="badge detail-badge" id="detail-status-badge">LOST</span>
+        <button class="close-modal-btn" id="close-detail-modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-media">
+          <img id="detail-img" src="" alt="Item Image">
+        </div>
+
+        <div class="detail-info">
+          <h1 class="detail-title" id="detail-title">Item Title</h1>
+          
+          <div class="detail-meta-list">
+            <div class="detail-meta-item">
+              <i data-lucide="map-pin"></i>
+              <div>
+                <strong>Location</strong>
+                <p id="detail-location">Central Park, NY</p>
+              </div>
+            </div>
+            <div class="detail-meta-item">
+              <i data-lucide="calendar"></i>
+              <div>
+                <strong>Date</strong>
+                <p id="detail-date">June 20, 2026</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-description-section">
+            <h3>Description</h3>
+            <p id="detail-description">Lorem ipsum dolor sit amet...</p>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="contact-section">
+            <h3>Reporter Information</h3>
+            <div class="reporter-card">
+              <div class="reporter-avatar" id="detail-reporter-avatar">JD</div>
+              <div class="reporter-details">
+                <h4 id="detail-reporter-name">John Doe</h4>
+                <p class="reporter-role">Original Poster</p>
+              </div>
+            </div>
+
+            <!-- Claim button / contact overlay -->
+            <div class="contact-actions">
+              <button id="btn-reveal-contact" class="btn btn-primary btn-block">
+                <i data-lucide="phone"></i>
+                <span>Get Contact Details</span>
+              </button>
+              
+              <!-- Contact Details Panel (Hidden by default, shown on click) -->
+              <div id="contact-details-panel" class="contact-details-panel hidden">
+                <div class="contact-detail-row">
+                  <i data-lucide="mail"></i>
+                  <a href="" id="contact-email-link">email@example.com</a>
+                </div>
+                <div class="contact-detail-row">
+                  <i data-lucide="phone"></i>
+                  <a href="" id="contact-phone-link">+1 234 567 890</a>
+                </div>
+                <div class="contact-detail-row">
+                  <i data-lucide="map-pin"></i>
+                  <span id="contact-address-text">Address here</span>
+                </div>
+              </div>
+
+              <!-- Delete own item (shown only if logged in user is the poster) -->
+              <button id="btn-delete-report" class="btn btn-danger btn-block hidden">
+                <i data-lucide="trash-2"></i>
+                <span>Delete Report</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCKER DETAIL MODAL -->
+  <div class="modal-overlay" id="locker-detail-modal">
+    <div class="modal-card detail-card">
+      <div class="modal-header">
+        <h2 id="locker-detail-title">Document Scan</h2>
+        <button class="close-modal-btn" id="close-locker-modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body locker-modal-body" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; padding: 20px 0;">
+        <div class="locker-detail-image-wrapper" style="background-color: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; max-height: 400px; padding: 10px;">
+          <img id="locker-detail-img" src="" alt="Full Document Scan" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius-sm);">
+        </div>
+        <div class="locker-detail-info" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>Document Type:</strong> <span id="locker-detail-type" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
+          <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>ID / Number:</strong> <span id="locker-detail-id" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
+          <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>Holder Name:</strong> <span id="locker-detail-holder" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
+          <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>Expiration:</strong> <span id="locker-detail-expiry" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
+          <div class="info-row" style="font-size: 0.95rem; color: var(--text-secondary); border-bottom: 1px solid var(--card-border); padding-bottom: 8px;"><strong>Scanned Date:</strong> <span id="locker-detail-scanned" style="float: right; font-weight: 600; color: var(--text-primary);">N/A</span></div>
+          <div class="info-textarea-group" style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px; flex-grow: 1;">
+            <label><strong>AI Extracted Raw Text Transcript:</strong></label>
+            <textarea id="locker-detail-rawtext" readonly rows="5" style="background-color: var(--input-bg); border: 1px solid var(--input-border); border-radius: var(--radius-sm); color: var(--text-primary); padding: 10px; font-family: monospace; font-size: 0.82rem; resize: none; width: 100%; height: 120px; outline: none;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENT CROP EDITOR MODAL -->
+  <div class="modal-overlay" id="crop-editor-modal" style="z-index: 3000;">
+    <div class="modal-card" style="max-width: 800px; display: flex; flex-direction: column; max-height: 90vh;">
+      <div class="modal-header" style="padding: 16px 24px;">
+        <h2 style="margin: 0; font-size: 1.3rem;">Document Crop & Perspective Warp</h2>
+        <button type="button" class="close-modal-btn" id="close-crop-editor" style="margin-left: auto;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; flex-grow: 1; background-color: var(--bg-primary);">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; text-align: center; margin-top: 0;">
+          Drag the 4 handles to align with the corners of your document. Landscape images will rotate automatically.
+        </p>
+        
+        <!-- Editor Viewport Container -->
+        <div id="crop-canvas-container" style="position: relative; max-width: 100%; border: 1px solid var(--card-border); border-radius: var(--radius-md); overflow: hidden; background: #0b0f19; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6);">
+          <canvas id="crop-editor-canvas" style="display: block; cursor: crosshair; touch-action: none; max-width: 100%; object-fit: contain;"></canvas>
+        </div>
+      </div>
+      <div class="crop-editor-footer">
+        <div class="crop-footer-left">
+          <button type="button" id="btn-crop-rotate" class="btn btn-secondary btn-crop-action" title="Rotate 90 degrees clockwise">
+            <i data-lucide="rotate-cw"></i>
+            <span>Rotate</span>
+          </button>
+          <button type="button" id="btn-crop-reset" class="btn btn-secondary btn-crop-action" title="Reset corners to full dimensions">
+            <i data-lucide="refresh-cw"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+        <div class="crop-footer-right">
+          <button type="button" class="btn btn-secondary btn-crop-action" id="btn-crop-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary btn-crop-action" id="btn-crop-submit">
+            <i data-lucide="check"></i>
+            <span>Process Scan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Banner (Custom alerts) -->
+  <div class="custom-alert-container" id="alert-container"></div>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>

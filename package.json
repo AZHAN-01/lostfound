@@ -1,0 +1,9 @@
+{
+  "name": "lostfound",
+  "version": "1.0.0",
+  "description": "Modern Lost & Found Platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "C:\\Users\\AZHAN\\Desktop\\xampp\\php\\php.exe -S 0.0.0.0:8000"
+  }
+}
