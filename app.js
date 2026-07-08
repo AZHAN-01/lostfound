@@ -3298,6 +3298,9 @@ function renderCertificates() {
         <div class="card-media" style="background: rgba(212, 175, 55, 0.1); height: 140px; display: flex; align-items: center; justify-content: center; position: relative;">
           <div style="color: #d4af37; font-size: 3rem;">🏆</div>
           <span class="badge" style="background: #d4af37; color: #fff; position: absolute; top: 10px; left: 10px;">CERTIFICATE</span>
+          <button class="btn-delete-cert" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #ef4444; cursor: pointer; transition: background 0.2s;" title="Delete Certificate">
+            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+          </button>
         </div>
         <div class="card-body" style="padding: 15px;">
           <span class="card-date" style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(cert.dateAwarded)}</span>
@@ -3313,8 +3316,44 @@ function renderCertificates() {
       card.addEventListener('click', () => {
         showCertificate(cert.recipientName, cert.itemTitle, cert.dateAwarded);
       });
+
+      const deleteBtn = card.querySelector('.btn-delete-cert');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteCertificate(cert.id);
+        });
+      }
+
       certsGrid.appendChild(card);
     });
   }
   safeCreateIcons();
+}
+
+function deleteCertificate(certId) {
+  if (!currentUser) return;
+  if (confirm("Are you sure you want to delete this appreciation certificate?")) {
+    fetch(`api/certificates.php?id=${certId}&email=${currentUser.email}`, {
+      method: 'DELETE'
+    })
+      .then(async response => {
+        let resData;
+        try {
+          resData = await response.json();
+        } catch (e) {
+          throw new Error(`Server returned invalid response. Status: ${response.status}`);
+        }
+        if (!response.ok) {
+          throw new Error(resData.message || 'Failed to delete certificate');
+        }
+        
+        dbCertificates = dbCertificates.filter(c => c.id !== certId);
+        showAlert("Certificate deleted successfully.", "success");
+        renderCertificates();
+      })
+      .catch(err => {
+        showAlert(err.message, "error");
+      });
+  }
 }

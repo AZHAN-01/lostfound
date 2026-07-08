@@ -135,6 +135,10 @@ switch ($method) {
             $deleteStmt = $pdo->prepare("DELETE FROM `items` WHERE `id` = ?");
             $deleteStmt->execute([$itemId]);
 
+            // Also delete any associated certificates for this item
+            $deleteCertStmt = $pdo->prepare("DELETE FROM `certificates` WHERE `itemId` = ?");
+            $deleteCertStmt->execute([$itemId]);
+
             echo json_encode(["message" => "Item listing deleted successfully."]);
         } catch (PDOException $e) {
             http_response_code(500);

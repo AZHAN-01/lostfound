@@ -77,6 +77,44 @@ switch ($method) {
         }
         break;
 
+    case 'DELETE':
+        $certId = isset($_GET['id']) ? $_GET['id'] : '';
+        $userEmail = isset($_GET['email']) ? $_GET['email'] : '';
+
+        if (empty($certId) || empty($userEmail)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Certificate ID and user email are required for deletion."]);
+            exit;
+        }
+
+        try {
+            // Verify ownership/recipient email
+            $stmt = $pdo->prepare("SELECT `recipientEmail` FROM `certificates` WHERE `id` = ?");
+            $stmt->execute([$certId]);
+            $cert = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$cert) {
+                http_response_code(404);
+                echo json_encode(["message" => "Certificate not found."]);
+                exit;
+            }
+
+            if (strtolower($cert['recipientEmail']) !== strtolower($userEmail)) {
+                http_response_code(403);
+                echo json_encode(["message" => "Unauthorized to delete this certificate."]);
+                exit;
+            }
+
+            $deleteStmt = $pdo->prepare("DELETE FROM `certificates` WHERE `id` = ?");
+            $deleteStmt->execute([$certId]);
+
+            echo json_encode(["message" => "Certificate deleted successfully."]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Failed to delete certificate: " . $e->getMessage()]);
+        }
+        break;
+
     default:
         http_response_code(405);
         echo json_encode(["message" => "Method not allowed."]);

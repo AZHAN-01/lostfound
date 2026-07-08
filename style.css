@@ -2935,3 +2935,7 @@ body.dark-mode .brand-logo span {
     justify-content: center;
   }
 }
+
+.btn-delete-cert:hover {
+  background-color: rgba(239, 68, 68, 0.4) !important;
+}
