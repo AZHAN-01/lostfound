@@ -1403,6 +1403,16 @@ function processAndSaveExtractedData(data) {
     return;
   }
 
+  if (data.id && data.id !== 'N/A' && data.id.trim() !== '') {
+    const isDuplicate = dbSavedDocs.some(doc => doc.docId === data.id);
+    if (isDuplicate) {
+      printConsoleLog(`[Error] Document ID ${data.id} is already in your Safe Locker.`, "error");
+      showAlert("This document is already saved in your Safe Locker!", "warning");
+      resetScanner();
+      return;
+    }
+  }
+
   printConsoleLog("Owner verification successful! Requesting custom document name...", "success");
 
   // Prompt user to customize the document name/label before saving
