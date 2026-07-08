@@ -721,6 +721,8 @@ const quotesList = [
 ];
 let activeQuoteIndex = 0;
 let quoteRotationTimer = null;
+let nextPrefetchedQuote = null;
+let isPrefetching = false;
 
 // Search/Filter states
 let lostSearchQuery = '';
@@ -798,6 +800,24 @@ navItems.forEach(item => {
 });
 
 // 2. Inspirational Quotes Engine
+async function prefetchNextQuote() {
+  if (isPrefetching || nextPrefetchedQuote !== null) return;
+  isPrefetching = true;
+  try {
+    const response = await fetch('api/quote.php');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.text && data.author) {
+        nextPrefetchedQuote = data;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to pre-fetch next quote:', error);
+  } finally {
+    isPrefetching = false;
+  }
+}
+
 async function rotateQuote() {
   if (!quoteTextEl || !quoteAuthorEl) return;
 
@@ -805,20 +825,11 @@ async function rotateQuote() {
   quoteTextEl.style.opacity = '0';
   quoteAuthorEl.style.opacity = '0';
 
-  let quote = null;
-  try {
-    const response = await fetch('api/quote.php');
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.text && data.author) {
-        quote = data;
-      }
-    }
-  } catch (error) {
-    console.warn('Failed to fetch quote from Gemini API, falling back to local list:', error);
-  }
+  // Consume pre-fetched quote
+  let quote = nextPrefetchedQuote;
+  nextPrefetchedQuote = null;
 
-  // Fallback if API call failed or returned empty
+  // Fallback if prefetch wasn't ready or failed
   if (!quote) {
     activeQuoteIndex = (activeQuoteIndex + 1) % quotesList.length;
     quote = quotesList[activeQuoteIndex];
@@ -831,11 +842,15 @@ async function rotateQuote() {
     // Fade in
     quoteTextEl.style.opacity = '1';
     quoteAuthorEl.style.opacity = '1';
+
+    // Prefetch the next quote in the background for the next transition
+    prefetchNextQuote();
   }, 300);
 }
 
 function startQuoteRotation() {
   if (quoteRotationTimer) clearInterval(quoteRotationTimer);
+  prefetchNextQuote(); // Ensure we start loading a quote in the background
   quoteRotationTimer = setInterval(rotateQuote, 20000);
 }
 
