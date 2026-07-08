@@ -1813,18 +1813,39 @@ if (btnCloseCert) {
   btnCloseCert.addEventListener('click', () => certModalElement.classList.remove('active'));
 }
 
-// Print Certificate Action
+// Print / Save PDF Certificate Action
 const btnPrintCert = document.getElementById('btn-print-certificate');
 if (btnPrintCert) {
+  // Update text to reflect PDF feature
+  btnPrintCert.innerHTML = '<i data-lucide="download"></i> Download PDF';
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+
   btnPrintCert.addEventListener('click', () => {
-    // Add print class to body for screen-to-print CSS override
+    // Add temporary print class to handle any layout overrides
     document.body.classList.add('printing-active');
-    
-    // Give browser brief time to layout, then open print dialog
-    setTimeout(() => {
-      window.print();
+    btnPrintCert.style.display = 'none'; // hide the button itself
+
+    const certElement = document.querySelector('.premium-certificate');
+    const opt = {
+      margin:       0,
+      filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
+      image:        { type: 'jpeg', quality: 1 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#121212' },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    // Generate PDF
+    html2pdf().set(opt).from(certElement).save().then(() => {
       document.body.classList.remove('printing-active');
-    }, 150);
+      btnPrintCert.style.display = 'flex';
+    }).catch(err => {
+      console.error("PDF generation failed:", err);
+      document.body.classList.remove('printing-active');
+      btnPrintCert.style.display = 'flex';
+      showAlert("Error generating PDF. Please try again.", "error");
+    });
   });
 }
 
