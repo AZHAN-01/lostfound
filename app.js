@@ -798,18 +798,35 @@ navItems.forEach(item => {
 });
 
 // 2. Inspirational Quotes Engine
-function rotateQuote() {
+async function rotateQuote() {
   if (!quoteTextEl || !quoteAuthorEl) return;
 
   // Fade out
   quoteTextEl.style.opacity = '0';
   quoteAuthorEl.style.opacity = '0';
 
-  setTimeout(() => {
+  let quote = null;
+  try {
+    const response = await fetch('api/quote.php');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.text && data.author) {
+        quote = data;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to fetch quote from Gemini API, falling back to local list:', error);
+  }
+
+  // Fallback if API call failed or returned empty
+  if (!quote) {
     activeQuoteIndex = (activeQuoteIndex + 1) % quotesList.length;
-    const currentQuote = quotesList[activeQuoteIndex];
-    quoteTextEl.textContent = `"${currentQuote.text}"`;
-    quoteAuthorEl.textContent = `— ${currentQuote.author}`;
+    quote = quotesList[activeQuoteIndex];
+  }
+
+  setTimeout(() => {
+    quoteTextEl.textContent = `"${quote.text}"`;
+    quoteAuthorEl.textContent = `— ${quote.author}`;
 
     // Fade in
     quoteTextEl.style.opacity = '1';
@@ -819,7 +836,7 @@ function rotateQuote() {
 
 function startQuoteRotation() {
   if (quoteRotationTimer) clearInterval(quoteRotationTimer);
-  quoteRotationTimer = setInterval(rotateQuote, 8000);
+  quoteRotationTimer = setInterval(rotateQuote, 20000);
 }
 
 if (btnNextQuote) {
