@@ -1449,7 +1449,7 @@ function processAndSaveExtractedData(data) {
       printConsoleLog("Document successfully stored in Safe Locker database!", "success");
       dbSavedDocs.unshift(docData);
       showAlert("Document analyzed and saved to Safe Locker!", "success");
-      resetScannerState();
+      resetScanner(); // Fully reset the scanner, removing the image
       renderLockerGallery();
     })
     .catch(err => {
