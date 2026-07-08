@@ -1859,8 +1859,16 @@ if (btnPrintCert) {
   }
 
   btnPrintCert.addEventListener('click', async () => {
-    btnPrintCert.style.display = 'none'; // hide the button itself
+    // Show spinner immediately to give instant UI feedback
+    const originalHTML = btnPrintCert.innerHTML;
+    btnPrintCert.innerHTML = '<i data-lucide="loader" style="animation: spin 1s linear infinite;"></i> Generating PDF...';
+    if (window.lucide) window.lucide.createIcons();
+    btnPrintCert.disabled = true;
 
+    // Yield back to the browser so it can paint the loading state before the heavy thread-blocking operations start
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
     // Wait until fonts and images (like QR code) are fully loaded
     await document.fonts.ready;
     const qrImage = document.getElementById('cert-qr-code');
@@ -1942,15 +1950,20 @@ if (btnPrintCert) {
     };
 
     // Generate PDF from the 100% scale clone
-    html2pdf().set(opt).from(printClone).save().then(() => {
-      btnPrintCert.style.display = 'flex';
-      document.body.removeChild(wrapper);
-    }).catch(err => {
+    await html2pdf().set(opt).from(printClone).save();
+    
+    } catch (err) {
       console.error("PDF generation failed:", err);
-      btnPrintCert.style.display = 'flex';
-      if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
       showAlert("Error generating PDF. Please try again.", "error");
-    });
+    } finally {
+      // Restore button state
+      btnPrintCert.innerHTML = originalHTML;
+      if (window.lucide) window.lucide.createIcons();
+      btnPrintCert.disabled = false;
+      
+      // Cleanup DOM
+      if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
+    }
   });
 }
 
