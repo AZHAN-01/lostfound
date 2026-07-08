@@ -65,7 +65,7 @@ try {
     // Try to run matching using Google Gemini API if key is configured
     if (defined('GEMINI_API_KEY') && !empty(GEMINI_API_KEY)) {
         try {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" . GEMINI_API_KEY;
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . GEMINI_API_KEY;
 
             $promptText = "You are an AI Lost & Found matching engine. Your goal is to match a newly scanned/found document against a list of lost listings and user document lockers.
 
