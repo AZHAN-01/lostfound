@@ -1882,12 +1882,15 @@ if (btnPrintCert) {
     wrapper.appendChild(printClone);
     document.body.appendChild(wrapper);
 
+    const certWidth = printClone.offsetWidth || 906;
+    const certHeight = printClone.offsetHeight || 650;
+
     const opt = {
       margin:       0,
       filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
       html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+      jsPDF:        { unit: 'px', format: [certWidth, certHeight], orientation: 'landscape' }
     };
 
     // Generate PDF from the 100% scale clone
