@@ -19,7 +19,7 @@ if (!defined('GEMINI_API_KEY') || empty(GEMINI_API_KEY)) {
 }
 
 try {
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . GEMINI_API_KEY;
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" . GEMINI_API_KEY;
 
     $payload = [
         "contents" => [
