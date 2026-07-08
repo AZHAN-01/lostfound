@@ -1797,6 +1797,7 @@ function showCertificate(returnerName, itemTitle, dateAwarded, certId) {
   if (certModal) {
     certModal.classList.add('active');
     createConfetti();
+    safeCreateIcons();
   }
 }
 
@@ -1823,6 +1824,8 @@ if (btnPrintCert) {
       <html>
         <head>
           <title>Certificate of Appreciation</title>
+          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="style.css">
           <style>
             body {
               display: flex;
@@ -1831,46 +1834,38 @@ if (btnPrintCert) {
               height: 100vh;
               margin: 0;
               background: #fff;
-              color: #000;
+              color: #0b1a30;
               font-family: 'Outfit', sans-serif;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
-            .certificate-frame {
-              border: 6px double #d4af37 !important;
-              padding: 40px !important;
-              border-radius: 8px !important;
-              width: 580px !important;
-              text-align: center !important;
-              background: #fafafa !important;
-              position: relative;
+            .premium-certificate {
+              width: 780px !important;
+              max-width: 780px !important;
+              box-shadow: none !important;
+              border: 3px solid #d4af37 !important;
+              box-sizing: border-box;
             }
             @media print {
               body {
                 background: none;
               }
+              @page {
+                size: landscape;
+                margin: 0;
+              }
             }
           </style>
         </head>
         <body>
-          <div class="certificate-frame">
-            <div style="color: #d4af37; font-size: 2.5rem; margin-bottom: 15px;">🏆</div>
-            <h2 style="color: #d4af37; letter-spacing: 2px; font-size: 1.8rem; margin: 0 0 10px 0; text-transform: uppercase;">Certificate of Appreciation</h2>
-            <p style="font-size: 0.95rem; font-style: italic; color: #555; margin: 0 0 25px 0;">This certificate is proudly presented to</p>
-            <h3 style="font-size: 2.2rem; color: #111; margin: 0 0 20px 0; border-bottom: 2px dashed rgba(212, 175, 55, 0.5); display: inline-block; padding: 0 30px 5px 30px; font-weight: 700;">${document.getElementById('cert-recipient-name').textContent}</h3>
-            <p style="font-size: 1.05rem; color: #444; max-width: 480px; margin: 0 auto 25px auto; line-height: 1.6;">
-              for their exceptional honesty, integrity, and community spirit in safely returning the lost item:
-              <strong style="display: block; color: #10B981; font-size: 1.25rem; margin-top: 10px; font-weight: 600;">${document.getElementById('cert-item-title').textContent}</strong>
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 20px;">
-              <div style="text-align: left;">
-                <span style="display: block; font-size: 0.9rem; color: #333; font-weight: 600; border-bottom: 1px solid #ddd; padding-bottom: 5px; width: 120px;">${document.getElementById('cert-date').textContent}</span>
-                <span style="font-size: 0.75rem; color: #777; display: block; margin-top: 5px;">Date</span>
-              </div>
-              <div style="text-align: right;">
-                <span style="display: block; font-size: 1.2rem; color: #d4af37; border-bottom: 1px solid #ddd; padding-bottom: 5px; width: 140px; text-align: center;">lostfound Team</span>
-                <span style="font-size: 0.75rem; color: #777; display: block; margin-top: 5px; text-align: center;">Authorized Signatory</span>
-              </div>
-            </div>
-          </div>
+          ${printContents}
+          <!-- Re-initialize icons inside print window if needed -->
+          <script src="https://unpkg.com/lucide@latest"></script>
+          <script>
+            if (typeof lucide !== 'undefined') {
+              lucide.createIcons();
+            }
+          </script>
         </body>
       </html>
     `);
@@ -1879,7 +1874,7 @@ if (btnPrintCert) {
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 500);
+    }, 800);
   });
 }
 
@@ -3342,7 +3337,7 @@ function renderCertificates() {
       `;
 
       card.addEventListener('click', () => {
-        showCertificate(cert.recipientName, cert.itemTitle, cert.dateAwarded);
+        showCertificate(cert.recipientName, cert.itemTitle, cert.dateAwarded, cert.id);
       });
 
       const deleteBtn = card.querySelector('.btn-delete-cert');
