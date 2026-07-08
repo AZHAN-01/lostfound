@@ -4515,11 +4515,11 @@ body.dark-mode .brand-logo span {
     min-width: 800px !important;
     width: 800px !important;
     margin: 0 !important;
-    /* Dynamically scale to fit exact screen width minus 50px for paddings */
-    transform: scale(calc((100vw - 50px) / 800));
+    /* Dynamically scale to fit exact screen width minus 50px for paddings (True width is 800 + 100 padding + 6 border = 906px) */
+    transform: scale(calc((100vw - 50px) / 906));
     transform-origin: top left;
     /* Mathematically collapse the empty vertical space left by the scale */
-    margin-bottom: calc(((100vw - 50px) / 800) * 550px - 550px) !important;
+    margin-bottom: calc(((100vw - 50px) / 906) * 650px - 650px) !important;
   }
 }
 
