@@ -1875,8 +1875,33 @@ if (gotBackBtn) {
       // It's a lost item. Automatically scan the database to find the matching 'found' item
       matchingFoundItem = dbItems.find(item => {
         if (item.status !== 'found') return false;
-        if (item.category.toLowerCase() !== activeViewingItem.category.toLowerCase()) return false;
         
+        // Helper to extract fields from description text
+        const extractField = (desc, label) => {
+          if (!desc) return null;
+          const regex = new RegExp(label + ':\\s*([^\\n\\r]+)', 'i');
+          const match = desc.match(regex);
+          if (match) {
+            const val = match[1].trim();
+            if (val.toLowerCase() !== 'unknown' && val.toLowerCase() !== 'n/a' && val.length > 2) {
+              return val.toLowerCase();
+            }
+          }
+          return null;
+        };
+
+        // 1. Try to match by extracted Document ID
+        const lostDocId = extractField(activeViewingItem.description, 'Document ID Number');
+        const foundDocId = extractField(item.description, 'Document ID Number');
+        if (lostDocId && foundDocId && lostDocId === foundDocId) return true;
+
+        // 2. Try to match by extracted Holder Name
+        const lostHolder = extractField(activeViewingItem.description, 'Holder Name');
+        const foundHolder = extractField(item.description, 'Holder Name');
+        if (lostHolder && foundHolder && lostHolder === foundHolder) return true;
+
+        // 3. Fallback to category + title keyword overlap
+        if (item.category.toLowerCase() !== activeViewingItem.category.toLowerCase()) return false;
         const lostTitle = activeViewingItem.title.toLowerCase();
         const foundTitle = item.title.toLowerCase();
         return lostTitle.includes(foundTitle) || foundTitle.includes(lostTitle) || 
