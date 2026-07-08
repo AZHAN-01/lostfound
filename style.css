@@ -4097,7 +4097,7 @@ body.dark-mode .brand-logo span {
 /* Premium Certificate Styles */
 .premium-certificate {
   background-color: #ffffff;
-  color: #0b1a30;
+  color: #d4af37;
   border: 3px solid #d4af37;
   position: relative;
   overflow: hidden;
@@ -4177,20 +4177,20 @@ body.dark-mode .brand-logo span {
   z-index: 5;
 }
 .cert-logo-section i {
-  color: #0a192f;
+  color: #d4af37;
   width: 24px;
   height: 24px;
 }
 .cert-logo-text {
   font-size: 0.85rem;
   font-weight: 800;
-  color: #0a192f;
+  color: #d4af37;
   line-height: 1;
   text-align: left;
 }
 .cert-logo-sub {
   font-size: 0.55rem;
-  color: #666;
+  color: #c5a880;
   letter-spacing: 0.5px;
   margin-top: 2px;
 }
@@ -4198,7 +4198,7 @@ body.dark-mode .brand-logo span {
 .cert-main-title {
   font-family: 'Outfit', sans-serif;
   font-size: 2.6rem;
-  color: #0a192f;
+  color: #d4af37;
   font-weight: 800;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -4231,7 +4231,7 @@ body.dark-mode .brand-logo span {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 3px;
-  color: #555;
+  color: #c5a880;
   text-transform: uppercase;
   margin-top: 20px;
   margin-bottom: 5px;
@@ -4242,7 +4242,7 @@ body.dark-mode .brand-logo span {
 .cert-recipient {
   font-family: 'Great Vibes', cursive;
   font-size: 3.4rem;
-  color: #0a192f;
+  color: #d4af37;
   margin: 10px 0;
   font-weight: 400;
   line-height: 1.1;
@@ -4260,7 +4260,7 @@ body.dark-mode .brand-logo span {
 
 .cert-message {
   font-size: 0.95rem;
-  color: #444;
+  color: #c5a880;
   max-width: 580px;
   margin: 0 auto 20px auto;
   line-height: 1.6;
@@ -4269,7 +4269,7 @@ body.dark-mode .brand-logo span {
 }
 
 .cert-message strong {
-  color: #0a192f;
+  color: #d4af37;
   font-weight: 700;
 }
 .cert-thankyou {
@@ -4311,7 +4311,7 @@ body.dark-mode .brand-logo span {
 
 .cert-sign-value-date {
   font-size: 0.85rem;
-  color: #0a192f;
+  color: #d4af37;
   font-weight: 700;
   border-bottom: 1px solid #c5a880;
   padding-bottom: 8px;
@@ -4325,7 +4325,7 @@ body.dark-mode .brand-logo span {
 .cert-sign-value-sig {
   font-family: 'Great Vibes', cursive;
   font-size: 2.6rem;
-  color: #0a192f;
+  color: #d4af37;
   border-bottom: 1px solid #c5a880;
   padding-bottom: 0px;
   width: 100%;
@@ -4349,7 +4349,7 @@ body.dark-mode .brand-logo span {
 .cert-sign-title {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #888;
+  color: #c5a880;
   text-transform: uppercase;
   margin-top: 8px;
   letter-spacing: 1px;
@@ -4357,7 +4357,7 @@ body.dark-mode .brand-logo span {
 
 .cert-sign-subtitle {
   font-size: 0.55rem;
-  color: #aaa;
+  color: #c5a880;
   margin-top: 2px;
 }
 
@@ -4391,7 +4391,7 @@ body.dark-mode .brand-logo span {
 .cert-qr-label {
   font-size: 0.62rem;
   font-weight: 800;
-  color: #0a192f;
+  color: #d4af37;
   text-transform: uppercase;
   margin-top: 8px;
   letter-spacing: 0.5px;
@@ -4399,7 +4399,7 @@ body.dark-mode .brand-logo span {
 
 .cert-qr-sub {
   font-size: 0.5rem;
-  color: #888;
+  color: #c5a880;
   margin-top: 3px;
   display: flex;
   align-items: center;
