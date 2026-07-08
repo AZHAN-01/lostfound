@@ -1868,7 +1868,19 @@ if (btnPrintCert) {
       margin:       0,
       filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#121212' },
+      html2canvas:  { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#121212',
+        onclone: (clonedDoc) => {
+          // Remove the mobile JS scaling in the cloned PDF document so it renders full size
+          const clonedCert = clonedDoc.querySelector('.premium-certificate');
+          if (clonedCert) {
+            clonedCert.style.transform = 'none';
+            clonedCert.style.marginBottom = '0px';
+          }
+        }
+      },
       jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
     };
 
