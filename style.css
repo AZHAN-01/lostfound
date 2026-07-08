@@ -4447,8 +4447,60 @@ body.dark-mode .brand-logo span {
   letter-spacing: 1px;
   z-index: 5;
 }
+}
+
+.certs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
 
 @media (max-width: 768px) {
+  .certs-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .cert-preview-card .card-media {
+    height: 80px !important;
+  }
+  .cert-preview-card .card-media div {
+    font-size: 1.8rem !important;
+  }
+  .cert-preview-card .card-media .badge {
+    font-size: 0.45rem !important;
+    padding: 2px 4px !important;
+    top: 5px !important;
+    left: 5px !important;
+  }
+  .cert-preview-card .btn-delete-cert {
+    width: 20px !important;
+    height: 20px !important;
+    top: 5px !important;
+    right: 5px !important;
+  }
+  .cert-preview-card .btn-delete-cert i {
+    width: 10px !important;
+    height: 10px !important;
+  }
+  .cert-preview-card .card-body {
+    padding: 8px !important;
+  }
+  .cert-preview-card .card-date {
+    font-size: 0.55rem !important;
+  }
+  .cert-preview-card .card-title {
+    font-size: 0.7rem !important;
+    margin-top: 2px !important;
+  }
+  .cert-preview-card .card-desc {
+    font-size: 0.6rem !important;
+    margin-top: 2px !important;
+    height: 26px !important;
+  }
+  .cert-preview-card .card-footer {
+    display: none !important;
+  }
   .certificate-card {
     max-width: 95% !important;
     margin: 10px !important;
