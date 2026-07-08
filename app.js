@@ -1757,6 +1757,37 @@ function createConfetti() {
   }
 }
 
+// Automatically scale certificate to perfectly fit any mobile screen
+function fitCertificateToScreen() {
+  const certContainer = document.querySelector('.premium-certificate');
+  if (!certContainer) return;
+  const modalBody = certContainer.parentElement;
+  
+  if (window.innerWidth < 900) {
+    // 15px padding on each side of modal-body = 30px
+    const availableWidth = modalBody.clientWidth - 30;
+    // 800px width + 100px padding + 6px border = 906px
+    const scale = availableWidth / 906;
+    
+    certContainer.style.transform = `scale(${scale})`;
+    certContainer.style.transformOrigin = 'top left';
+    
+    // Collapse the container height so there's no blank space below it
+    const exactHeight = certContainer.offsetHeight;
+    certContainer.style.marginBottom = `${(scale * exactHeight) - exactHeight}px`;
+  } else {
+    certContainer.style.transform = 'none';
+    certContainer.style.marginBottom = '0px';
+  }
+}
+
+window.addEventListener('resize', () => {
+  const certModal = document.getElementById('certificate-modal');
+  if (certModal && certModal.classList.contains('active')) {
+    fitCertificateToScreen();
+  }
+});
+
 // Show Certificate of Appreciation
 function showCertificate(returnerName, itemTitle, dateAwarded, certId) {
   const certModal = document.getElementById('certificate-modal');
@@ -1796,6 +1827,11 @@ function showCertificate(returnerName, itemTitle, dateAwarded, certId) {
   
   if (certModal) {
     certModal.classList.add('active');
+    
+    // Run scaler immediately, and again after a slight delay to ensure DOM layout is complete
+    fitCertificateToScreen();
+    setTimeout(fitCertificateToScreen, 50);
+    
     createConfetti();
     safeCreateIcons();
   }
