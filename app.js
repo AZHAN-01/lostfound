@@ -1859,39 +1859,45 @@ if (btnPrintCert) {
   }
 
   btnPrintCert.addEventListener('click', () => {
-    // Add temporary print class to handle any layout overrides
-    document.body.classList.add('printing-active');
     btnPrintCert.style.display = 'none'; // hide the button itself
 
-    const certElement = document.querySelector('.premium-certificate');
+    const originalCert = document.querySelector('.premium-certificate');
+    
+    // Create an invisible wrapper so HTML2CANVAS can render it within viewport bounds
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.top = '0';
+    wrapper.style.left = '0';
+    wrapper.style.width = '1200px';
+    wrapper.style.height = '1000px';
+    wrapper.style.zIndex = '-9999';
+    wrapper.style.opacity = '0';
+    wrapper.style.pointerEvents = 'none';
+
+    // Create a 100% scale clone
+    const printClone = originalCert.cloneNode(true);
+    printClone.style.transform = 'none';
+    printClone.style.marginBottom = '0px';
+    
+    wrapper.appendChild(printClone);
+    document.body.appendChild(wrapper);
+
     const opt = {
       margin:       0,
       filename:     `Certificate_of_Appreciation_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { 
-        scale: 2, 
-        useCORS: true, 
-        backgroundColor: '#121212',
-        onclone: (clonedDoc) => {
-          // Remove the mobile JS scaling in the cloned PDF document so it renders full size
-          const clonedCert = clonedDoc.querySelector('.premium-certificate');
-          if (clonedCert) {
-            clonedCert.style.transform = 'none';
-            clonedCert.style.marginBottom = '0px';
-          }
-        }
-      },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
       jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
     };
 
-    // Generate PDF
-    html2pdf().set(opt).from(certElement).save().then(() => {
-      document.body.classList.remove('printing-active');
+    // Generate PDF from the 100% scale clone
+    html2pdf().set(opt).from(printClone).save().then(() => {
       btnPrintCert.style.display = 'flex';
+      document.body.removeChild(wrapper);
     }).catch(err => {
       console.error("PDF generation failed:", err);
-      document.body.classList.remove('printing-active');
       btnPrintCert.style.display = 'flex';
+      if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
       showAlert("Error generating PDF. Please try again.", "error");
     });
   });
