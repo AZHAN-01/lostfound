@@ -100,20 +100,6 @@ try {
         `createdAt` BIGINT NOT NULL
     ) ENGINE=InnoDB");
 
-    // Migrate existing resolved_found items to certificates table if they aren't already there
-    $pdo->exec("INSERT INTO `certificates` (id, itemId, recipientName, recipientEmail, itemTitle, dateAwarded, createdAt)
-        SELECT 
-            CONCAT('cert_mig_', id) AS id,
-            id AS itemId,
-            reporterName AS recipientName,
-            reporterEmail AS recipientEmail,
-            title AS itemTitle,
-            date AS dateAwarded,
-            createdAt
-        FROM `items` 
-        WHERE `status` = 'resolved_found'
-        AND id NOT IN (SELECT itemId FROM `certificates`)");
-
     // Create User OTPs table for secure server-side verification
     $pdo->exec("CREATE TABLE IF NOT EXISTS `user_otps` (
         `user_id` VARCHAR(50) PRIMARY KEY,
