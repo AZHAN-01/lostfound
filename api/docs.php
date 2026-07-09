@@ -23,7 +23,7 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT * FROM "saved_docs" WHERE "userId" = ? ORDER BY "createdAt" DESC");
+            $stmt = $pdo->prepare("SELECT * FROM saved_docs WHERE "userId" = ? ORDER BY "createdAt" DESC");
             $stmt->execute([$userId]);
             $docs = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -59,7 +59,7 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO "saved_docs" 
+            $stmt = $pdo->prepare("INSERT INTO saved_docs 
                 (id, userId, name, type, docId, holderName, expiryDate, rawText, image, createdAt) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
@@ -112,7 +112,7 @@ switch ($method) {
 
         try {
             // Verify ownership
-            $stmt = $pdo->prepare("SELECT "userId" FROM "saved_docs" WHERE "id" = ?");
+            $stmt = $pdo->prepare("SELECT "userId" FROM saved_docs WHERE id = ?");
             $stmt->execute([$docId]);
             $doc = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -128,7 +128,7 @@ switch ($method) {
                 exit;
             }
 
-            $deleteStmt = $pdo->prepare("DELETE FROM "saved_docs" WHERE "id" = ?");
+            $deleteStmt = $pdo->prepare("DELETE FROM saved_docs WHERE id = ?");
             $deleteStmt->execute([$docId]);
 
             echo json_encode(["message" => "Document scan deleted successfully."]);

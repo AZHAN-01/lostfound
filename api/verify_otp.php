@@ -30,7 +30,7 @@ try {
     $otp = trim($data->otp);
 
     // Fetch matching OTP entry
-    $stmt = $pdo->prepare("SELECT * FROM "user_otps" WHERE "user_id" = ?");
+    $stmt = $pdo->prepare("SELECT * FROM user_otps WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $otp_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -43,7 +43,7 @@ try {
     // Verify expiration (expires_at is a UNIX timestamp in seconds)
     if (time() > (int)$otp_record['expires_at']) {
         // Delete expired OTP
-        $del_stmt = $pdo->prepare("DELETE FROM "user_otps" WHERE "user_id" = ?");
+        $del_stmt = $pdo->prepare("DELETE FROM user_otps WHERE user_id = ?");
         $del_stmt->execute([$user_id]);
 
         http_response_code(401);
@@ -59,11 +59,11 @@ try {
     }
 
     // OTP matches! Delete verification record to prevent reuse (replay attack prevention)
-    $del_stmt = $pdo->prepare("DELETE FROM "user_otps" WHERE "user_id" = ?");
+    $del_stmt = $pdo->prepare("DELETE FROM user_otps WHERE user_id = ?");
     $del_stmt->execute([$user_id]);
 
     // Fetch user details for the frontend session
-    $user_stmt = $pdo->prepare("SELECT * FROM "users" WHERE "id" = ?");
+    $user_stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $user_stmt->execute([$user_id]);
     $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 

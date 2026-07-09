@@ -34,7 +34,7 @@ if (
 
 try {
     // Check if email already exists (stored in plaintext)
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM "users" WHERE LOWER("email") = LOWER(?)");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE LOWER(email) = LOWER(?)");
     $stmt->execute([$data->email]);
     if ($stmt->fetchColumn() > 0) {
         http_response_code(409);
@@ -44,7 +44,7 @@ try {
 
     // Check if phone number already exists
     // Since phone is encrypted, we fetch all users and decrypt their phone numbers to verify duplicates.
-    $stmt = $pdo->query("SELECT "phone" FROM "users"");
+    $stmt = $pdo->query("SELECT phone FROM users");
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         if (decrypt_data($row['phone']) === $data->phone) {
             http_response_code(409);
@@ -59,7 +59,7 @@ try {
     // Hash password securely
     $passwordHash = password_hash($data->password, PASSWORD_DEFAULT);
 
-    $stmt = $pdo->prepare("INSERT INTO "users" (id, name, email, phone, address, password) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO users (id, name, email, phone, address, password) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $data->id,
         $data->name,

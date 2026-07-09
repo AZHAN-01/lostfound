@@ -31,7 +31,7 @@ try {
     $new_password = $data->new_password;
 
     // Fetch matching OTP entry
-    $stmt = $pdo->prepare("SELECT * FROM "user_otps" WHERE "user_id" = ?");
+    $stmt = $pdo->prepare("SELECT * FROM user_otps WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $otp_record = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +44,7 @@ try {
     // Verify expiration
     if (time() > (int)$otp_record['expires_at']) {
         // Delete expired OTP
-        $del_stmt = $pdo->prepare("DELETE FROM "user_otps" WHERE "user_id" = ?");
+        $del_stmt = $pdo->prepare("DELETE FROM user_otps WHERE user_id = ?");
         $del_stmt->execute([$user_id]);
 
         http_response_code(401);
@@ -63,11 +63,11 @@ try {
     $passwordHash = password_hash($new_password, PASSWORD_DEFAULT);
 
     // Update password in users table
-    $update_stmt = $pdo->prepare("UPDATE "users" SET "password" = ? WHERE "id" = ?");
+    $update_stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
     $update_stmt->execute([$passwordHash, $user_id]);
 
     // Delete verification record to prevent reuse
-    $del_stmt = $pdo->prepare("DELETE FROM "user_otps" WHERE "user_id" = ?");
+    $del_stmt = $pdo->prepare("DELETE FROM user_otps WHERE user_id = ?");
     $del_stmt->execute([$user_id]);
 
     echo json_encode([

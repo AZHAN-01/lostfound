@@ -32,7 +32,7 @@ try {
 
     // Check if identifier is an email (contains '@')
     if (strpos($identifier, '@') !== false) {
-        $stmt = $pdo->prepare("SELECT * FROM "users" WHERE LOWER("email") = LOWER(?)");
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?)");
         $stmt->execute([$identifier]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
@@ -40,7 +40,7 @@ try {
         }
     } else {
         // Assume phone number: fetch and decrypt to match
-        $stmt = $pdo->query("SELECT * FROM "users"");
+        $stmt = $pdo->query("SELECT * FROM users");
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $decryptedPhone = decrypt_data($row['phone']);
             if ($decryptedPhone === $identifier) {
@@ -64,12 +64,12 @@ try {
     $target = $matchedUser['email'];
 
     // Clear any existing OTP for this user
-    $stmt = $pdo->prepare("DELETE FROM "user_otps" WHERE "user_id" = ?");
+    $stmt = $pdo->prepare("DELETE FROM user_otps WHERE user_id = ?");
     $stmt->execute([$matchedUser['id']]);
 
     // Store the OTP securely on the server-side (expires in 5 minutes)
     $expires_at = time() + 300;
-    $stmt = $pdo->prepare("INSERT INTO "user_otps" ("user_id", "otp", "expires_at") VALUES (?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO user_otps (user_id, otp, expires_at) VALUES (?, ?, ?)");
     $stmt->execute([$matchedUser['id'], $otp, $expires_at]);
 
     // Dispatch delivery

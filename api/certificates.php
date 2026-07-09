@@ -23,7 +23,7 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT * FROM "certificates" WHERE "recipientEmail" = ? ORDER BY "createdAt" DESC");
+            $stmt = $pdo->prepare("SELECT * FROM certificates WHERE "recipientEmail" = ? ORDER BY "createdAt" DESC");
             $stmt->execute([$email]);
             $certs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($certs);
@@ -52,7 +52,7 @@ switch ($method) {
         $createdAt = round(microtime(true) * 1000);
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO "certificates" 
+            $stmt = $pdo->prepare("INSERT INTO certificates 
                 (id, itemId, recipientName, recipientEmail, itemTitle, dateAwarded, createdAt) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)");
             
@@ -89,7 +89,7 @@ switch ($method) {
 
         try {
             // Verify ownership/recipient email
-            $stmt = $pdo->prepare("SELECT "recipientEmail" FROM "certificates" WHERE "id" = ?");
+            $stmt = $pdo->prepare("SELECT "recipientEmail" FROM certificates WHERE id = ?");
             $stmt->execute([$certId]);
             $cert = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -105,7 +105,7 @@ switch ($method) {
                 exit;
             }
 
-            $deleteStmt = $pdo->prepare("DELETE FROM "certificates" WHERE "id" = ?");
+            $deleteStmt = $pdo->prepare("DELETE FROM certificates WHERE id = ?");
             $deleteStmt->execute([$certId]);
 
             echo json_encode(["message" => "Certificate deleted successfully."]);

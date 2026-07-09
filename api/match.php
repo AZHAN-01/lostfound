@@ -31,7 +31,7 @@ if (empty($docId) && empty($holderName)) {
 
 try {
     // 1. Fetch and prepare all locker documents
-    $stmt = $pdo->query("SELECT * FROM "saved_docs"");
+    $stmt = $pdo->query("SELECT * FROM saved_docs");
     $lockerDocs = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $lockerDocs[] = [
@@ -45,7 +45,7 @@ try {
     }
 
     // 2. Fetch and prepare all lost items
-    $stmt = $pdo->prepare("SELECT * FROM "items" WHERE "status" = 'lost' ORDER BY "createdAt" DESC");
+    $stmt = $pdo->prepare("SELECT * FROM items WHERE status = 'lost' ORDER BY "createdAt" DESC");
     $stmt->execute();
     $lostItems = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -183,11 +183,11 @@ If no match is found, return:
     if ($matchedResult) {
         if ($matchedResult['source'] === 'locker') {
             // Find the owner user of the locker document
-            $docStmt = $pdo->prepare("SELECT "userId" FROM "saved_docs" WHERE "id" = ?");
+            $docStmt = $pdo->prepare("SELECT "userId" FROM saved_docs WHERE id = ?");
             $docStmt->execute([$matchedResult['id']]);
             $docRecord = $docStmt->fetch(PDO::FETCH_ASSOC);
             if ($docRecord) {
-                $userStmt = $pdo->prepare("SELECT * FROM "users" WHERE "id" = ?");
+                $userStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
                 $userStmt->execute([$docRecord['userId']]);
                 $owner = $userStmt->fetch(PDO::FETCH_ASSOC);
                 if ($owner) {
@@ -202,7 +202,7 @@ If no match is found, return:
             }
         } else if ($matchedResult['source'] === 'lost_report') {
             // Find the reporter of the lost item
-            $itemStmt = $pdo->prepare("SELECT * FROM "items" WHERE "id" = ?");
+            $itemStmt = $pdo->prepare("SELECT * FROM items WHERE id = ?");
             $itemStmt->execute([$matchedResult['id']]);
             $itemRecord = $itemStmt->fetch(PDO::FETCH_ASSOC);
             if ($itemRecord) {
