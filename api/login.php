@@ -81,7 +81,7 @@ try {
     $delivery_response = null;
     
     // Check if external API credentials are set, otherwise log to server
-    if (!empty(RESEND_API_KEY)) {
+    if (!empty(SMTP_PASS)) {
         $res = send_real_email($target, $otp);
         $delivery_status = $res['status'] ? "sent" : "failed";
         $delivery_response = $res['response'];
