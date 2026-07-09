@@ -687,7 +687,7 @@ async function transitionToDashboard() {
 }
 
 // Log out action
-logoutBtn.addEventListener(`click', () => {
+logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('lostfound_session');
   currentUser = null;
 
@@ -1630,7 +1630,7 @@ function renderLockerGallery() {
     card.querySelector('.btn-locker-delete').addEventListener('click', () => {
       if (confirm(`Remove "${doc.name}" scan from Safe Locker?`)) {
         fetch(`${API_BASE_URL}/docs.php?id=${doc.id}&userId=${currentUser.id}`, {
-          method: `DELETE'
+          method: 'DELETE'
         })
           .then(async response => {
             let resData;
@@ -2130,7 +2130,7 @@ function deleteListing(itemId) {
 
   if (confirm("Are you sure you want to delete this listing report?")) {
     fetch(`${API_BASE_URL}/items.php?id=${itemId}&email=${currentUser.email}`, {
-      method: `DELETE'
+      method: 'DELETE'
     })
       .then(async response => {
         let resData;
@@ -3469,7 +3469,7 @@ function deleteCertificate(certId) {
   if (!currentUser) return;
   if (confirm("Are you sure you want to delete this appreciation certificate?")) {
     fetch(`${API_BASE_URL}/certificates.php?id=${certId}&email=${currentUser.email}`, {
-      method: `DELETE'
+      method: 'DELETE'
     })
       .then(async response => {
         let resData;
