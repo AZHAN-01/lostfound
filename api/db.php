@@ -1,5 +1,20 @@
 <?php
-require_once 'config.php';
+if (file_exists('config.php')) {
+    require_once 'config.php';
+} else {
+    // When deployed to Render, config.php won't exist because it is in .gitignore.
+    // Instead, we define the required constants securely from Render's Environment Variables.
+    define('DB_HOST', getenv('DB_HOST'));
+    define('DB_USER', getenv('DB_USER'));
+    define('DB_PASS', getenv('DB_PASS'));
+    define('DB_NAME', getenv('DB_NAME'));
+    define('DB_PORT', getenv('DB_PORT'));
+    define('ENCRYPTION_KEY', getenv('ENCRYPTION_KEY'));
+    define('GEMINI_API_KEY', getenv('GEMINI_API_KEY'));
+    define('RESEND_API_KEY', getenv('RESEND_API_KEY'));
+    define('RESEND_SENDER_EMAIL', getenv('RESEND_SENDER_EMAIL'));
+    define('RESEND_SENDER_NAME', getenv('RESEND_SENDER_NAME'));
+}
 
 // AES-256-CBC Encryption helpers
 function encrypt_data($data) {
