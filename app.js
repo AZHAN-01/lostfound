@@ -222,7 +222,14 @@ function resetForgotFormStep() {
   if (existing) existing.remove();
 }
 
-function showOtpDeliveryStatusNotification(target, deliveryStatus, deliveryResponse) {
+function showOtpDeliveryStatusNotification(target, deliveryStatus, deliveryResponseRaw) {
+  let deliveryResponse = deliveryResponseRaw;
+  if (typeof deliveryResponseRaw === 'string') {
+    try {
+        deliveryResponse = JSON.parse(deliveryResponseRaw);
+    } catch(e) {}
+  }
+
   const existing = document.getElementById('sim-otp-notification');
   if (existing) existing.remove();
 
@@ -244,16 +251,28 @@ function showOtpDeliveryStatusNotification(target, deliveryStatus, deliveryRespo
   let activationNote = '';
 
   if (deliveryStatus === 'logged_to_server') {
+    let sandboxOtpDisplay = '';
+    if (deliveryResponse && deliveryResponse.sandbox_otp) {
+        sandboxOtpDisplay = `
+          <div style="margin-top: 10px; background: #2a2a2a; border: 1px dashed var(--brand-primary); padding: 10px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Sandbox Mode OTP</div>
+            <div style="font-size: 1.5rem; font-weight: bold; color: var(--brand-primary); letter-spacing: 4px;">${deliveryResponse.sandbox_otp}</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">Use this code to proceed instantly</div>
+          </div>
+        `;
+    }
+
     statusHtml = `
-      <div style="color: var(--color-resolved); font-size: 0.85rem; margin-top: 6px; font-weight: 500; display: flex; align-items: flex-start; gap: 6px;">
-        <span>🟢</span>
-        <div>
-          <strong>Developer Mode Active:</strong> OTP has been securely logged to the server backend.
-          <br>
-          <code style="background: var(--bg-body); padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 4px; font-size: 0.75rem;">api/secure_debug_otp.log</code>
+      <div style="color: var(--color-resolved); font-size: 0.85rem; margin-top: 6px; font-weight: 500; display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; align-items: flex-start; gap: 6px;">
+          <span>🟢</span>
+          <div>
+            <strong>Developer Sandbox Active</strong>
+          </div>
         </div>
+        ${sandboxOtpDisplay}
       </div>`;
-    activationNote = `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; font-style: italic; border-top: 1px solid var(--border-color); padding-top: 8px;">*For security, the actual OTP code is never sent to the client browser.</div>`;
+    activationNote = `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; font-style: italic; border-top: 1px solid var(--border-color); padding-top: 8px;">Because Render Free Tier blocks SMTP, emails are disabled.</div>`;
   } else if (deliveryStatus === 'sent') {
     statusHtml = `<div style="color: var(--color-resolved); font-size: 0.75rem; margin-top: 6px; font-weight: 500;">🟢 OTP sent via real email!</div>`;
     activationNote = '';

@@ -88,7 +88,7 @@ try {
     } else {
         log_secure_otp($matchedUser['id'], "email", $target, $otp);
         $delivery_status = "logged_to_server";
-        $delivery_response = json_encode(["success" => true, "message" => "OTP logged to server for local development."]);
+        $delivery_response = json_encode(["success" => true, "message" => "OTP logged to server for local development.", "sandbox_otp" => $otp]);
     }
 
     $masked_target = ($method === "email") ? mask_email($target) : mask_phone($target);
