@@ -382,7 +382,7 @@ registerForm.addEventListener('submit', (e) => {
     password: password
   };
 
-  fetch(`${API_BASE_URL}/register.php', {
+  fetch(`${API_BASE_URL}/register.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -424,7 +424,7 @@ loginForm.addEventListener('submit', (e) => {
   errorMsg.classList.remove('active');
 
   if (!otpStepActive) {
-    fetch(`${API_BASE_URL}/login.php', {
+    fetch(`${API_BASE_URL}/login.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, password })
@@ -486,7 +486,7 @@ loginForm.addEventListener('submit', (e) => {
     // OTP Verification step is active!
     const enteredOtp = document.getElementById('login-otp').value.trim();
 
-    fetch(`${API_BASE_URL}/verify_otp.php', {
+    fetch(`${API_BASE_URL}/verify_otp.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: pendingLoginUserId, otp: enteredOtp })
@@ -534,7 +534,7 @@ if (forgotForm) {
       // Step 1: Send OTP
       const identifier = document.getElementById('forgot-identifier').value.trim();
 
-      fetch(`${API_BASE_URL}/forgot_password.php', {
+      fetch(`${API_BASE_URL}/forgot_password.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier })
@@ -597,7 +597,7 @@ if (forgotForm) {
         return;
       }
 
-      fetch(`${API_BASE_URL}/reset_password.php', {
+      fetch(`${API_BASE_URL}/reset_password.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: pendingForgotUserId, otp, new_password })
@@ -659,7 +659,7 @@ async function transitionToDashboard() {
 
   // Fetch items and docs from the server
   try {
-    const itemsResponse = await fetch(`${API_BASE_URL}/items.php');
+    const itemsResponse = await fetch(`${API_BASE_URL}/items.php`);
     if (itemsResponse.ok) {
       dbItems = await itemsResponse.json();
     }
@@ -687,7 +687,7 @@ async function transitionToDashboard() {
 }
 
 // Log out action
-logoutBtn.addEventListener('click', () => {
+logoutBtn.addEventListener(`click', () => {
   localStorage.removeItem('lostfound_session');
   currentUser = null;
 
@@ -821,7 +821,7 @@ async function prefetchNextQuote() {
   if (isPrefetching || nextPrefetchedQuote !== null) return;
   isPrefetching = true;
   try {
-    const response = await fetch(`${API_BASE_URL}/quote.php');
+    const response = await fetch(`${API_BASE_URL}/quote.php`);
     if (response.ok) {
       const data = await response.json();
       if (data && data.text && data.author) {
@@ -1268,7 +1268,7 @@ function runAutomatedScanAndSave() {
   // 1. Try to analyze using Google Gemini API backend proxy
   printConsoleLog("Contacting server-side Google Gemini API...", "info");
 
-  fetch(`${API_BASE_URL}/analyze.php', {
+  fetch(`${API_BASE_URL}/analyze.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: scannedDocBase64 })
@@ -1447,7 +1447,7 @@ function processAndSaveExtractedData(data) {
     createdAt: Date.now()
   };
 
-  fetch(`${API_BASE_URL}/docs.php', {
+  fetch(`${API_BASE_URL}/docs.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(docData)
@@ -1592,7 +1592,7 @@ function renderLockerGallery() {
           createdAt: Date.now()
         };
 
-        fetch(`${API_BASE_URL}/items.php', {
+        fetch(`${API_BASE_URL}/items.php`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newReport)
@@ -1630,7 +1630,7 @@ function renderLockerGallery() {
     card.querySelector('.btn-locker-delete').addEventListener('click', () => {
       if (confirm(`Remove "${doc.name}" scan from Safe Locker?`)) {
         fetch(`${API_BASE_URL}/docs.php?id=${doc.id}&userId=${currentUser.id}`, {
-          method: 'DELETE'
+          method: `DELETE'
         })
           .then(async response => {
             let resData;
@@ -2050,7 +2050,7 @@ if (gotBackBtn) {
     
     try {
       // 1. Update the status of the current item
-      const response = await fetch(`${API_BASE_URL}/items.php', {
+      const response = await fetch(`${API_BASE_URL}/items.php`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: activeViewingItem.id, status: nextStatus })
@@ -2067,7 +2067,7 @@ if (gotBackBtn) {
       
       // 2. If it was a lost item and we matched a found item, update the found item to resolved_found so the finder gets the certificate
       if (matchingFoundItem) {
-        const matchResponse = await fetch(`${API_BASE_URL}/items.php', {
+        const matchResponse = await fetch(`${API_BASE_URL}/items.php`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: matchingFoundItem.id, status: 'resolved_found' })
@@ -2080,7 +2080,7 @@ if (gotBackBtn) {
       
       // 3. Create the Certificate row in the separate certificates database table!
       const dateAwardedStr = new Date().toISOString().split('T')[0];
-      const certResponse = await fetch(`${API_BASE_URL}/certificates.php', {
+      const certResponse = await fetch(`${API_BASE_URL}/certificates.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2130,7 +2130,7 @@ function deleteListing(itemId) {
 
   if (confirm("Are you sure you want to delete this listing report?")) {
     fetch(`${API_BASE_URL}/items.php?id=${itemId}&email=${currentUser.email}`, {
-      method: 'DELETE'
+      method: `DELETE'
     })
       .then(async response => {
         let resData;
@@ -2487,7 +2487,7 @@ function runFoundDocumentOcrAndMatch(base64Data) {
 
   showAlert("Google Gemini AI: Analyzing document image...", "info");
 
-  fetch(`${API_BASE_URL}/analyze.php', {
+  fetch(`${API_BASE_URL}/analyze.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: base64Data })
@@ -2612,7 +2612,7 @@ function processAndMatchFoundData(data) {
   }
 
   // Call matching backend
-  fetch(`${API_BASE_URL}/match.php', {
+  fetch(`${API_BASE_URL}/match.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -2719,7 +2719,7 @@ reportForm.addEventListener('submit', (e) => {
     createdAt: Date.now()
   };
 
-  fetch(`${API_BASE_URL}/items.php', {
+  fetch(`${API_BASE_URL}/items.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newReport)
@@ -3469,7 +3469,7 @@ function deleteCertificate(certId) {
   if (!currentUser) return;
   if (confirm("Are you sure you want to delete this appreciation certificate?")) {
     fetch(`${API_BASE_URL}/certificates.php?id=${certId}&email=${currentUser.email}`, {
-      method: 'DELETE'
+      method: `DELETE'
     })
       .then(async response => {
         let resData;
