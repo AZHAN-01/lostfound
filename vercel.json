@@ -25,7 +25,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://YOUR_BACKEND_APP.onrender.com/api/$1"
+      "dest": "https://lostfound-hun8.onrender.com/api/$1"
     },
     {
       "src": "/(.*)",

@@ -2,7 +2,7 @@
 // Set this to your Render URL when deploying the frontend, e.g., 'https://your-backend.onrender.com'
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'api' 
-    : 'https://YOUR_BACKEND_APP.onrender.com/api'; // <--- UPDATE THIS URL AFTER RENDER DEPLOYMENT
+    : 'https://lostfound-hun8.onrender.com/api'; // <--- UPDATE THIS URL AFTER RENDER DEPLOYMENT
 // ----------------------------------
 
 // -------------------------------------------------------------------------- //
