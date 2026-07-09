@@ -30,87 +30,79 @@ function decrypt_data($data) {
 }
 
 try {
-    // Connect to MySQL server without DB first
-    $pdo = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Connect directly to the database using PostgreSQL DSN
+    // pgsql:host=...;port=...;dbname=...;sslmode=require
+    $dsn = "pgsql:host=" . DB_HOST . (defined('DB_PORT') ? ";port=" . DB_PORT : "") . ";dbname=" . DB_NAME;
     
-    // Increase max allowed packet to support base64 queries up to 32MB
-    try {
-        $pdo->exec("SET GLOBAL max_allowed_packet = 33554432");
-    } catch (Exception $e) {
-        // Ignore if DB user doesn't have SUPER privileges
-    }
-    
-    // Create database if not exists
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    
-    // Connect to the database
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    // Aiven requires sslmode=require which can be appended or handled by PDO options
+    $dsn .= ";sslmode=require";
+
+    $pdo = new PDO($dsn, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Create Users table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
-        `id` VARCHAR(50) PRIMARY KEY,
-        `name` VARCHAR(100) NOT NULL,
-        `email` VARCHAR(100) UNIQUE NOT NULL,
-        `phone` TEXT NOT NULL,
-        `address` TEXT NOT NULL,
-        `password` VARCHAR(255) NOT NULL
-    ) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        phone TEXT NOT NULL,
+        address TEXT NOT NULL,
+        password VARCHAR(255) NOT NULL
+    )");
     
     // Create Items table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `items` (
-        `id` VARCHAR(50) PRIMARY KEY,
-        `title` VARCHAR(255) NOT NULL,
-        `category` VARCHAR(50) NOT NULL,
-        `status` VARCHAR(20) NOT NULL,
-        `date` VARCHAR(20) NOT NULL,
-        `location` VARCHAR(255) NOT NULL,
-        `description` TEXT NOT NULL,
-        `image` LONGTEXT NOT NULL,
-        `reporterName` VARCHAR(100) NOT NULL,
-        `reporterEmail` VARCHAR(100) NOT NULL,
-        `reporterPhone` TEXT NOT NULL,
-        `reporterAddress` TEXT NOT NULL,
-        `createdAt` BIGINT NOT NULL,
-        INDEX `idx_createdAt` (`createdAt`),
-        INDEX `idx_status` (`status`)
-    ) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS items (
+        id VARCHAR(50) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        date VARCHAR(20) NOT NULL,
+        location VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        image TEXT NOT NULL,
+        \"reporterName\" VARCHAR(100) NOT NULL,
+        \"reporterEmail\" VARCHAR(100) NOT NULL,
+        \"reporterPhone\" TEXT NOT NULL,
+        \"reporterAddress\" TEXT NOT NULL,
+        \"createdAt\" BIGINT NOT NULL
+    )");
+    
+    // Create Indexes for Items table
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_createdAt ON items (\"createdAt\")");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_status ON items (status)");
     
     // Create Saved Docs table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `saved_docs` (
-        `id` VARCHAR(50) PRIMARY KEY,
-        `userId` VARCHAR(50) NOT NULL,
-        `name` TEXT NOT NULL,
-        `type` TEXT NOT NULL,
-        `docId` TEXT NOT NULL,
-        `holderName` TEXT NOT NULL,
-        `expiryDate` TEXT NOT NULL,
-        `rawText` LONGTEXT NOT NULL,
-        `image` LONGTEXT NOT NULL,
-        `createdAt` BIGINT NOT NULL
-    ) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS saved_docs (
+        id VARCHAR(50) PRIMARY KEY,
+        \"userId\" VARCHAR(50) NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        \"docId\" TEXT NOT NULL,
+        \"holderName\" TEXT NOT NULL,
+        \"expiryDate\" TEXT NOT NULL,
+        \"rawText\" TEXT NOT NULL,
+        image TEXT NOT NULL,
+        \"createdAt\" BIGINT NOT NULL
+    )");
 
     // Create Certificates table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `certificates` (
-        `id` VARCHAR(50) PRIMARY KEY,
-        `itemId` VARCHAR(50) NOT NULL,
-        `recipientName` VARCHAR(100) NOT NULL,
-        `recipientEmail` VARCHAR(100) NOT NULL,
-        `itemTitle` VARCHAR(255) NOT NULL,
-        `dateAwarded` VARCHAR(20) NOT NULL,
-        `createdAt` BIGINT NOT NULL
-    ) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS certificates (
+        id VARCHAR(50) PRIMARY KEY,
+        \"itemId\" VARCHAR(50) NOT NULL,
+        \"recipientName\" VARCHAR(100) NOT NULL,
+        \"recipientEmail\" VARCHAR(100) NOT NULL,
+        \"itemTitle\" VARCHAR(255) NOT NULL,
+        \"dateAwarded\" VARCHAR(20) NOT NULL,
+        \"createdAt\" BIGINT NOT NULL
+    )");
 
     // Create User OTPs table for secure server-side verification
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `user_otps` (
-        `user_id` VARCHAR(50) PRIMARY KEY,
-        `otp` VARCHAR(10) NOT NULL,
-        `expires_at` BIGINT NOT NULL,
-        FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB");
-
-
+    $pdo->exec("CREATE TABLE IF NOT EXISTS user_otps (
+        user_id VARCHAR(50) PRIMARY KEY,
+        otp VARCHAR(10) NOT NULL,
+        expires_at BIGINT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
 
 } catch (PDOException $e) {
     header('Content-Type: application/json');

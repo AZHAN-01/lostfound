@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { margin: 0; padding: 0; background: #eee; }
+  .screen { width: 375px; height: 600px; background: white; outline: 2px solid red; overflow: hidden; margin: 20px; }
+  .modal-card { width: 100%; max-width: 100%; overflow: hidden; background: #ddd; }
+  .modal-body { padding: 15px; }
+  .premium-certificate {
+    width: 800px;
+    height: 550px;
+    background: gold;
+    transform-origin: top left;
+    transform: scale(calc((375px - 30px) / 800));
+    margin-bottom: calc(((375px - 30px) / 800) * 550px - 550px);
+  }
+</style>
+</head>
+<body>
+  <div class="screen">
+    <div class="modal-card">
+      <div class="modal-body">
+        <div class="premium-certificate">
+          <h2>Certificate</h2>
+          <div style="float: right">Right side</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -22,7 +22,7 @@ if ($method === 'GET') {
 switch ($method) {
     case 'GET':
         try {
-            $stmt = $pdo->query("SELECT * FROM `items` ORDER BY `createdAt` DESC");
+            $stmt = $pdo->query("SELECT * FROM "items" ORDER BY "createdAt" DESC");
             $items = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $row['reporterPhone'] = decrypt_data($row['reporterPhone']);
@@ -58,7 +58,7 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO `items` 
+            $stmt = $pdo->prepare("INSERT INTO "items" 
                 (id, title, category, status, date, location, description, image, reporterName, reporterEmail, reporterPhone, reporterAddress, createdAt) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
@@ -101,7 +101,7 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("UPDATE `items` SET `status` = ? WHERE `id` = ?");
+            $stmt = $pdo->prepare("UPDATE "items" SET "status" = ? WHERE "id" = ?");
             $stmt->execute([$data->status, $data->id]);
             echo json_encode(["message" => "Item status updated successfully."]);
         } catch (PDOException $e) {
@@ -122,7 +122,7 @@ switch ($method) {
 
         try {
             // Fetch the item to verify ownership
-            $stmt = $pdo->prepare("SELECT `reporterEmail` FROM `items` WHERE `id` = ?");
+            $stmt = $pdo->prepare("SELECT "reporterEmail" FROM "items" WHERE "id" = ?");
             $stmt->execute([$itemId]);
             $item = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -138,11 +138,11 @@ switch ($method) {
                 exit;
             }
 
-            $deleteStmt = $pdo->prepare("DELETE FROM `items` WHERE `id` = ?");
+            $deleteStmt = $pdo->prepare("DELETE FROM "items" WHERE "id" = ?");
             $deleteStmt->execute([$itemId]);
 
             // Also delete any associated certificates for this item
-            $deleteCertStmt = $pdo->prepare("DELETE FROM `certificates` WHERE `itemId` = ?");
+            $deleteCertStmt = $pdo->prepare("DELETE FROM "certificates" WHERE "itemId" = ?");
             $deleteCertStmt->execute([$itemId]);
 
             echo json_encode(["message" => "Item listing deleted successfully."]);
