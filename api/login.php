@@ -10,6 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -122,54 +126,56 @@ function mask_phone($phone) {
 }
 
 function log_secure_otp($user_id, $method, $target, $otp) {
-    $log_file = __DIR__ . '/secure_debug_otp.log';
+    $log_dir = __DIR__ . '/logs';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
+    $log_file = $log_dir . '/secure_debug_otp.log';
     $timestamp = date('Y-m-d H:i:s');
     $entry = "[$timestamp] User ID: $user_id | Method: $method | Target: $target | OTP: $otp\n";
     file_put_contents($log_file, $entry, FILE_APPEND);
     
-    // Create htaccess to prevent direct browser access to the log file
-    $htaccess = __DIR__ . '/.htaccess';
+    // Create htaccess to prevent direct browser access to the log directory
+    $htaccess = $log_dir . '/.htaccess';
     if (!file_exists($htaccess)) {
         file_put_contents($htaccess, "Deny from all\n");
     }
 }
 
 function send_real_email($to, $otp) {
-    $url = "https://api.resend.com/emails";
-    $payload = json_encode([
-        "from" => RESEND_SENDER_NAME . " <" . RESEND_SENDER_EMAIL . ">",
-        "to" => [$to],
-        "subject" => "Your OTP Verification Code",
-        "html" => "<h3>Lost & Found Verification</h3><p>Your 4-digit verification code is: <strong style='font-size: 1.2rem;'>" . $otp . "</strong></p><p>This code is valid for 5 minutes.</p>"
-    ]);
+    $mail = new PHPMailer(true);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . RESEND_API_KEY,
-        'Content-Type: application/json'
-    ]);
-    
-    $response = curl_exec($ch);
-    $err = curl_error($ch);
-    $info = curl_getinfo($ch);
-    curl_close($ch);
-    
-    if ($response === false) {
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = SMTP_USER;
+        $mail->Password   = SMTP_PASS;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable implicit TLS encryption
+        $mail->Port       = 465;
+
+        // Recipients
+        $mail->setFrom(SMTP_USER, SMTP_SENDER_NAME);
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Your OTP Verification Code';
+        $mail->Body    = "<h3>Lost & Found Verification</h3><p>Your 4-digit verification code is: <strong style='font-size: 1.2rem;'>" . $otp . "</strong></p><p>This code is valid for 5 minutes.</p>";
+        $mail->AltBody = "Your 4-digit verification code is: " . $otp . "\nThis code is valid for 5 minutes.";
+
+        $mail->send();
+        return [
+            "status" => true,
+            "response" => json_encode(["success" => true, "message" => "Email sent successfully"])
+        ];
+    } catch (Exception $e) {
         return [
             "status" => false,
-            "response" => json_encode(["success" => false, "message" => "cURL Error: " . $err])
+            "response" => json_encode(["success" => false, "message" => "Mailer Error: {$mail->ErrorInfo}"])
         ];
     }
-    return [
-        "status" => ($info['http_code'] >= 200 && $info['http_code'] < 300),
-        "response" => $response
-    ];
 }
-
 
 ?>

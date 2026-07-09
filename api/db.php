@@ -11,9 +11,9 @@ if (file_exists('config.php')) {
     define('DB_PORT', getenv('DB_PORT'));
     define('ENCRYPTION_KEY', getenv('ENCRYPTION_KEY'));
     define('GEMINI_API_KEY', getenv('GEMINI_API_KEY'));
-    define('RESEND_API_KEY', getenv('RESEND_API_KEY'));
-    define('RESEND_SENDER_EMAIL', getenv('RESEND_SENDER_EMAIL'));
-    define('RESEND_SENDER_NAME', getenv('RESEND_SENDER_NAME'));
+    define('SMTP_USER', getenv('SMTP_USER'));
+    define('SMTP_PASS', getenv('SMTP_PASS'));
+    define('SMTP_SENDER_NAME', getenv('SMTP_SENDER_NAME'));
 }
 
 // AES-256-CBC Encryption helpers

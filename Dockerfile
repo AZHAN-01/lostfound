@@ -13,7 +13,16 @@ RUN a2enmod rewrite
 # The API will be accessible at YOUR_RENDER_URL/api/...
 # Let's set DocumentRoot to the default /var/www/html
 
+# Install git and zip required by Composer
+RUN apt-get update && apt-get install -y git unzip
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 COPY . /var/www/html/
+
+# Install PHPMailer via Composer in the api directory
+RUN cd /var/www/html/api && composer require phpmailer/phpmailer
 
 # Expose port 80
 EXPOSE 80
