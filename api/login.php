@@ -12,8 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once 'db.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -81,14 +80,14 @@ try {
     $delivery_response = null;
     
     // Check if external API credentials are set, otherwise log to server
-    if (!empty(SMTP_PASS)) {
-        $res = send_real_email($target, $otp);
+    if (getenv('BREVO_API_KEY')) {
+        $res = send_brevo_email($target, $otp);
         $delivery_status = $res['status'] ? "sent" : "failed";
         $delivery_response = $res['response'];
     } else {
         log_secure_otp($matchedUser['id'], "email", $target, $otp);
         $delivery_status = "logged_to_server";
-        $delivery_response = json_encode(["success" => true, "message" => "OTP logged to server for local development.", "sandbox_otp" => $otp]);
+        $delivery_response = json_encode(["success" => true, "message" => "OTP logged to server for local development. Set BREVO_API_KEY to send emails."]);
     }
 
     $masked_target = ($method === "email") ? mask_email($target) : mask_phone($target);
@@ -142,40 +141,62 @@ function log_secure_otp($user_id, $method, $target, $otp) {
     }
 }
 
-function send_real_email($to, $otp) {
-    $mail = new PHPMailer(true);
-
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = trim(SMTP_USER);
-        $mail->Password   = trim(SMTP_PASS);
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable implicit TLS encryption
-        $mail->Port       = 465;
-
-        // Recipients
-        $mail->setFrom(trim(SMTP_USER), SMTP_SENDER_NAME);
-        $mail->addAddress(trim($to));
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Your OTP Verification Code';
-        $mail->Body    = "<h3>Lost & Found Verification</h3><p>Your 4-digit verification code is: <strong style='font-size: 1.2rem;'>" . $otp . "</strong></p><p>This code is valid for 5 minutes.</p>";
-        $mail->AltBody = "Your 4-digit verification code is: " . $otp . "\nThis code is valid for 5 minutes.";
-
-        $mail->send();
-        return [
-            "status" => true,
-            "response" => json_encode(["success" => true, "message" => "Email sent successfully"])
-        ];
-    } catch (Exception $e) {
+function send_brevo_email($to, $otp) {
+    $api_key = getenv('BREVO_API_KEY');
+    if (!$api_key) {
         return [
             "status" => false,
-            "response" => json_encode(["success" => false, "message" => "Mailer Error: {$mail->ErrorInfo}"])
+            "response" => json_encode(["success" => false, "message" => "BREVO_API_KEY environment variable is missing on the server."])
+        ];
+    }
+
+    $url = "https://api.brevo.com/v3/smtp/email";
+    $payload = json_encode([
+        "sender" => [
+            "name" => getenv('SMTP_SENDER_NAME') ?: "Lost & Found Platform",
+            "email" => getenv('SMTP_USER') ?: "noreply@lostfound.com" // Brevo requires the sender email to be verified in their dashboard
+        ],
+        "to" => [
+            [
+                "email" => $to
+            ]
+        ],
+        "subject" => "Your OTP Verification Code",
+        "htmlContent" => "<h3>Lost & Found Verification</h3><p>Your 4-digit verification code is: <strong style='font-size: 1.2rem;'>" . $otp . "</strong></p><p>This code is valid for 5 minutes.</p>"
+    ]);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "accept: application/json",
+        "api-key: " . $api_key,
+        "content-type: application/json"
+    ]);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_error) {
+        return [
+            "status" => false,
+            "response" => json_encode(["success" => false, "message" => "cURL Error: " . $curl_error])
+        ];
+    }
+
+    if ($http_code >= 200 && $http_code < 300) {
+        return [
+            "status" => true,
+            "response" => json_encode(["success" => true, "message" => "Email sent successfully via Brevo"])
+        ];
+    } else {
+        return [
+            "status" => false,
+            "response" => json_encode(["success" => false, "message" => "Brevo API Error ($http_code): " . $response])
         ];
     }
 }
-
 ?>
