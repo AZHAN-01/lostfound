@@ -153,8 +153,8 @@ function send_brevo_email($to, $otp) {
     $url = "https://api.brevo.com/v3/smtp/email";
     $payload = json_encode([
         "sender" => [
-            "name" => getenv('SMTP_SENDER_NAME') ?: "Lost & Found Platform",
-            "email" => getenv('SMTP_USER') ?: "noreply@lostfound.com" // Brevo requires the sender email to be verified in their dashboard
+            "name" => "Lost & Found Platform",
+            "email" => "mohdazhannajar@gmail.com"
         ],
         "to" => [
             [
