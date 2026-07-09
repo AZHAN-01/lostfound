@@ -141,14 +141,14 @@ function send_real_email($to, $otp) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USER;
-        $mail->Password   = SMTP_PASS;
+        $mail->Username   = trim(SMTP_USER);
+        $mail->Password   = trim(SMTP_PASS);
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable implicit TLS encryption
         $mail->Port       = 465;
 
         // Recipients
-        $mail->setFrom(SMTP_USER, SMTP_SENDER_NAME);
-        $mail->addAddress($to);
+        $mail->setFrom(trim(SMTP_USER), SMTP_SENDER_NAME);
+        $mail->addAddress(trim($to));
 
         // Content
         $mail->isHTML(true);
